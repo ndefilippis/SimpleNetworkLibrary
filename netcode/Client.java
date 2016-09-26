@@ -142,7 +142,7 @@ public class Client{
 		
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			Input input = new Input(true);
+			Input input = new Input(false);
 			sendMessage(new CounterPacket(input));
 			knownInputs.offer(input);
 		}

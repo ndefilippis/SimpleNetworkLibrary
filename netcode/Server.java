@@ -13,6 +13,7 @@ import java.util.Queue;
 import java.util.Set;
 
 import mvc.Counter;
+import mvc.ServerCounterViewer;
 import netcode.packet.AcceptConnectPacket;
 import netcode.packet.ChangeValuePacket;
 import netcode.packet.CounterPacket;
@@ -23,15 +24,18 @@ public class Server {
 	DatagramChannel channel;
 	Map<SocketAddress, Long> clients = new HashMap<SocketAddress, Long>();
 	Queue<Message> messagesToSend = new LinkedList<Message>();
+	private ServerCounterViewer view;
 	ByteBuffer buf;
 	
-	private static final int MILLI_DELAY = 5000;
+	private static final int MILLI_DELAY = 100;
 	private long nextID = 0L;
 	private long time;
 	private long id = -1L;
 	
 	public Server(int port) throws IOException{
 		this.counter = new Counter();
+		view = new ServerCounterViewer(counter.getValue());
+		counter.addObserver(view);
 		channel = DatagramChannel.open();
 		channel.socket().bind(new InetSocketAddress(port));
 		channel.configureBlocking(false);
@@ -39,6 +43,7 @@ public class Server {
 	
 	public void start() throws IOException{
 		time = System.nanoTime();
+		view.setVisible(true);
 		while(true){
 			while(messagesToSend.size() > 0 && messagesToSend.peek().readyToSend(time)){
 				Message m = messagesToSend.poll();
@@ -56,7 +61,6 @@ public class Server {
 				buf.flip();
 				processMessge(buf, System.nanoTime(), clientAddress);
 			}
-			
 		}
 	}
 	
@@ -134,7 +138,7 @@ public class Server {
 		}
 		
 		public boolean readyToSend(long currTime){
-			return delay * 1000 * 1000 < currTime - this.time;
+			return delay < currTime - this.time;
 		}
 		
 	}
