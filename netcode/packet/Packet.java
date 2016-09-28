@@ -62,7 +62,7 @@ public abstract class Packet {
 		this.packetTypeID = type.getID();
 	}
 	
-	protected void intToByteArray(int value, byte[] array, int start){
+	protected static void intToByteArray(int value, byte[] array, int start){
 		for(int i = 0; i < 4; i++){
 			array[i + start] = (byte) (value >>> (8 * i));
 		}

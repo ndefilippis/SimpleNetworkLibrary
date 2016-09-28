@@ -42,7 +42,7 @@ public class MoverController {
 	}
 	
 	private class InputListener extends KeyAdapter{
-		private Input currentState = new Input(false, false, false, false);
+		private Input currentState = new Input(false, false, false, false, 0);
 		
 		@Override
 		public void keyPressed(KeyEvent e) {

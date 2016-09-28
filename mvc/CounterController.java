@@ -15,7 +15,7 @@ public class CounterController {
 		this.view.addDecrementListener(new DecrementListener());
 	}
 	
-	public void handleInput(Input input){
+	public void handleInput(CounterInput input){
 		if(input.isIncrement()){
 			model.incrementValue();
 		}
@@ -27,14 +27,14 @@ public class CounterController {
 	class IncrementListener implements ActionListener{
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			handleInput(new Input(true));
+			handleInput(new CounterInput(true));
 		}
 	}
 	
 	class DecrementListener implements ActionListener{
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			handleInput(new Input(false));
+			handleInput(new CounterInput(false));
 		}
 	}
 }

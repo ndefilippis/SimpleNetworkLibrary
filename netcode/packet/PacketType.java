@@ -8,7 +8,8 @@ public enum PacketType{
 	NEWVALUE(03),
 	
 	DISCONNECT(04),
-	INVALID(05);
+	NEWPLAYER(05),
+	INVALID(06);
 	
 	private byte packetID;
 	

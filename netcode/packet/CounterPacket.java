@@ -2,19 +2,19 @@ package netcode.packet;
 
 import java.nio.ByteBuffer;
 
-import mvc.Input;
+import mvc.CounterInput;
 
 public class CounterPacket extends Packet{
-	private Input input;
+	private CounterInput input;
 	
 	public CounterPacket(long timeReceived, ByteBuffer data) {
 		super(timeReceived, data);
 		byte[] counterData = new byte[data.remaining()];
 		data.get(counterData, 0, counterData.length);
-		this.input = new Input(counterData[0] == 1 ? true : false);
+		this.input = new CounterInput(counterData[0] == 1 ? true : false);
 	}
 	
-	public CounterPacket(Input input){
+	public CounterPacket(CounterInput input){
 		super(PacketType.COUNTER);
 		this.input = input;
 	}

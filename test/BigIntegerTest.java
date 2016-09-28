@@ -1,0 +1,12 @@
+package test;
+
+import java.math.BigInteger;
+
+public class BigIntegerTest {
+
+	public static void main(String[] args) {
+		BigInteger b1 = new BigInteger("334343434343434343423542357359874698745698745698347569837456987406987349856723490862345723486523846234653245928347609824769824769843769847693845769384769348567938476");
+		BigInteger b2 = new BigInteger("4");
+	}
+
+}
