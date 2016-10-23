@@ -1,4 +1,4 @@
-package netcode;
+package counter.netcode;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -12,11 +12,11 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
-import mvc.Counter;
-import mvc.ServerCounterViewer;
+import counter.mvc.Counter;
+import counter.mvc.ServerCounterViewer;
+import counter.netcode.packet.CounterPacket;
 import netcode.packet.AcceptConnectPacket;
 import netcode.packet.ChangeValuePacket;
-import netcode.packet.CounterPacket;
 import netcode.packet.Packet;
 
 public class CounterServer {

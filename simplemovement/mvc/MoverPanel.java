@@ -1,4 +1,4 @@
-package simplemovement;
+package simplemovement.mvc;
 
 import java.awt.Graphics;
 import java.util.List;

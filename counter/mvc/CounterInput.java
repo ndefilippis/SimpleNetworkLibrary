@@ -1,19 +1,15 @@
-package mvc;
+package counter.mvc;
 
-public class CounterInput {
+import mvc.Input;
+
+public class CounterInput extends Input{
 	private boolean isIncrement;
-	private long time;
 	
 	public CounterInput(boolean isIncrement){
+		super();
 		this.isIncrement = isIncrement;
-		this.time = System.nanoTime();
 	}
-	
 	public boolean isIncrement(){
 		return isIncrement;
-	}
-	
-	public long getTime(){
-		return time;
 	}
 }

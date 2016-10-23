@@ -1,6 +1,5 @@
-package simplemovement;
+package simplemovement.netcode;
 
-import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -9,15 +8,24 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Queue;
 
-import netcode.CounterClient;
-import netcode.packet.AcceptConnectPacket;
-import netcode.packet.ChangeValuePacket;
 import netcode.packet.ConnectPacket;
 import netcode.packet.DisconnectPacket;
 import netcode.packet.Packet;
+import simplemovement.GameLoop;
+import simplemovement.mvc.Input;
+import simplemovement.mvc.InputListener;
+import simplemovement.mvc.Mover;
+import simplemovement.mvc.MoverController;
+import simplemovement.mvc.MoverPlane;
+import simplemovement.mvc.MoverViewer;
+import simplemovement.netcode.packet.BeginConnectionPacket;
+import simplemovement.netcode.packet.InputPacket;
+import simplemovement.netcode.packet.MoverChangePacket;
+import simplemovement.netcode.packet.NewMoverPacket;
 
 public class MoverClient {
 	private DatagramChannel channel;
@@ -26,10 +34,11 @@ public class MoverClient {
 	private MoverPlane model;
 	private MoverViewer viewer;
 	private MoverController controller;
+	private InputListener listener;
 	
 	private ByteBuffer bufin;
 	private ByteBuffer bufout;
-	private Queue<Input> knownInputs = new LinkedList<Input>();
+	private volatile Queue<Input> knownInputs = new LinkedList<Input>();
 	
 	private long id;
 	
@@ -41,14 +50,18 @@ public class MoverClient {
 	}
 	
 	public void start(){
+		long time = System.nanoTime();
+		long lastTime = time;
 		while(true){
+			time = System.nanoTime();
+			double dt = (time - lastTime)/1000000000D;
 			ByteBuffer message = recieveMessage();
 			if(message != null){
 				long timeReceived = System.nanoTime();
 				Packet packet = messageToPacket(message, timeReceived);
 				handlePacket(packet);
 			}
-			
+			lastTime = time;
 		}	
 	}
 	
@@ -72,9 +85,11 @@ public class MoverClient {
 	public Packet messageToPacket(ByteBuffer message, long timeReceived){
 		switch(Packet.lookupPacket(message)){
 		case ACCEPTCONNECT:
-			return new AcceptConnectPacket(timeReceived, message);
+			return new BeginConnectionPacket(timeReceived, message);
 		case NEWVALUE:
-			return new ChangeValuePacket(timeReceived, message);
+			return new MoverChangePacket(timeReceived, message);
+		case NEWPLAYER:
+			return new NewMoverPacket(timeReceived, message);
 		default:
 			return null;
 		}
@@ -102,12 +117,15 @@ public class MoverClient {
 		for(Mover m : packet.getMovers()){
 			if(m.getID() == this.id){
 				this.myMover = m;
-				break;
 			}
+			model.addMover(m);
 		}
 		viewer.addWindowListener(new DisconnectListener(this));
-		viewer.addInputListener(new InputListener());
-		controller = new MoverController(model, viewer, myMover);
+		listener = new LagCompensatedInputListener();
+		viewer.addInputListener(listener);
+		new Thread(new GameLoop(model)).start();
+		controller = new MoverController(model, viewer, myMover, listener);
+		
 		viewer.setVisible(true);
 	}
 	
@@ -120,8 +138,11 @@ public class MoverClient {
 		while(knownInputs.size() > 0 && knownInputs.peek().getTime() < packet.getUpdateTime()){
 			knownInputs.poll();
 		}
-		for(Input input : knownInputs){
-			controller.handleInput(input, input.getDt());
+		synchronized(knownInputs){
+			for(Iterator<Input> it = knownInputs.iterator(); it.hasNext();){
+				Input i = it.next();
+				controller.handleInput(i);
+			}
 		}
 	}
 	
@@ -138,45 +159,28 @@ public class MoverClient {
 		}
 	}
 	
-	public static void main(String[] args) throws IOException{
-		CounterClient c = new CounterClient("localhost", 1337);
-		c.start();
-	}
-	
-	private class InputListener extends KeyAdapter{
-		private Input currentState = new Input(false, false, false, false, 0);
+	private class LagCompensatedInputListener extends InputListener{
 		
 		@Override
 		public void keyPressed(KeyEvent e) {
 			Input newState = getNewState(e, true);
 			currentState = newState;
-			knownInputs.add(currentState);
+			controller.handleInput(currentState);
+			sendMessage(new InputPacket(listener.getState(), (int)id));
+			synchronized(knownInputs){
+				knownInputs.add(currentState);
+			}
 		}
 
 		@Override
 		public void keyReleased(KeyEvent e) {
 			Input newState = getNewState(e, false);
 			currentState = newState;
-			knownInputs.add(currentState);
-		}
-		
-		private Input getNewState(KeyEvent e, boolean isPressed){
-			Input newState = new Input(currentState);
-			switch(e.getKeyCode()){
-				case KeyEvent.VK_W:
-					newState.up = isPressed;
-					break;
-				case KeyEvent.VK_S:
-					newState.down = isPressed;
-					break;
-				case KeyEvent.VK_A:
-					newState.left = isPressed;
-					break;
-				case KeyEvent.VK_D:
-					newState.right = isPressed;
-					break;
+			controller.handleInput(currentState);
+			sendMessage(new InputPacket(listener.getState(), (int)id));
+			synchronized(knownInputs){
+				knownInputs.add(currentState);
 			}
-			return newState;
 		}
 	
 		public Input getState(){

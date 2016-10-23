@@ -1,30 +1,31 @@
-package mvc;
+package counter.mvc;
 import java.awt.BorderLayout;
 import java.awt.Font;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowListener;
-import java.util.Observable;
-import java.util.Observer;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 
-public class CounterViewer implements Observer{
+import mvc.View;
+
+public class CounterViewer  extends View<CounterState>{
 	private JFrame frame = new JFrame();
 	private JLabel label = new JLabel();
 	private JButton incrementButton = new JButton("+");
 	private JButton decrementButton = new JButton("-");
 	
-	public CounterViewer(int value){
+	public CounterViewer(CounterState state){
+		super(state);
 		frame.setTitle("Simple Counter");
 		frame.setResizable(false);
 		frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		frame.setSize(300, 400);
 		frame.getContentPane().setLayout(new BorderLayout());
 		
-		label.setText(""+value);
+		label.setText(""+state.value);
 		label.setHorizontalAlignment(SwingConstants.CENTER);
 		label.setFont(new Font(null, Font.BOLD, 72));
 		
@@ -60,9 +61,8 @@ public class CounterViewer implements Observer{
 	}
 
 	@Override
-	public void update(Observable o, Object arg) {
-		if(o instanceof Counter){
-			label.setText(""+((Counter)o).getValue());
-		}
+	protected void update(CounterState state) {
+		label.setText(state.value+"");
 	}
+
 }

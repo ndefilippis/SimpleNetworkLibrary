@@ -1,9 +1,10 @@
-package simplemovement;
+package simplemovement.netcode.packet;
 
 import java.nio.ByteBuffer;
 
 import netcode.packet.Packet;
 import netcode.packet.PacketType;
+import simplemovement.mvc.Input;
 
 public class InputPacket extends Packet {
 
@@ -38,7 +39,7 @@ public class InputPacket extends Packet {
 
 	@Override
 	protected byte[] encodeData() {
-		byte[] data = new byte[5];
+		byte[] data = new byte[13];
 		data[0] = (byte)( (input.down ? 1 : 0) | (input.left ?  2 : 0) | (input.right ?  4 : 0) | (input.up ?  8 : 0) );
 		intToByteArray(moverID, data, 1);
 		return data;

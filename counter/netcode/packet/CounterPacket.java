@@ -1,8 +1,10 @@
-package netcode.packet;
+package counter.netcode.packet;
 
 import java.nio.ByteBuffer;
 
-import mvc.CounterInput;
+import counter.mvc.CounterInput;
+import netcode.packet.Packet;
+import netcode.packet.PacketType;
 
 public class CounterPacket extends Packet{
 	private CounterInput input;

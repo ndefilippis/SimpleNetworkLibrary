@@ -1,25 +1,17 @@
 package test;
 
+import simplemovement.GameLoop;
+import simplemovement.mvc.MoverPlane;
+
 public class ThreadTest {
 	public static int a;
 	
 	public static void main(String[] args){
-		while(true){
-			Thread m = new Thread();
-			m.start();
-			if(a % 100 == 0){
-				System.out.println(a);
-			}
-		}
-	}
-	
-	public class PooPooTest extends Thread{
-		
-		@Override
-		public void run(){
-			while(true){
-				a += 1;
-			}
-		}
+		MoverPlane mover = new MoverPlane();
+		GameLoop loop = new GameLoop(mover);
+		Thread gameThread = new Thread(loop);
+		System.out.println("BEFORE THREAD");
+		gameThread.start();
+		System.out.println("AFTER THREAD");
 	}
 }

@@ -1,4 +1,4 @@
-package simplemovement;
+package simplemovement.mvc;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +24,12 @@ public class MoverPlane extends Observable implements Observer{
 		if(o instanceof Mover){
 			this.setChanged();
 			this.notifyObservers();
+		}
+	}
+
+	public void update(double dt) {
+		for(Mover mover : movers){
+			mover.update(dt);
 		}
 	}
 }

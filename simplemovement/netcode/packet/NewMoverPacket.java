@@ -1,9 +1,10 @@
-package simplemovement;
+package simplemovement.netcode.packet;
 
 import java.nio.ByteBuffer;
 
 import netcode.packet.Packet;
 import netcode.packet.PacketType;
+import simplemovement.mvc.Mover;
 
 public class NewMoverPacket extends Packet {
 	

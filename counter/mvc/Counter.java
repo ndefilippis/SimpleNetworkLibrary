@@ -1,33 +1,33 @@
-package mvc;
-import java.util.Observable;
+package counter.mvc;
 
-public class Counter extends Observable{
-	private int value;
+import mvc.Model;
+
+public class Counter extends Model<CounterState>{
 	
 	public Counter(){
-		this.value = 0;
+		this.state = new CounterState();
 	}
 	
 	public Counter(int value){
-		this.value = value;
+		this.state = new CounterState(value);
 	}
 	
 	public void setValue(int value){
-		this.value = value;
+		state.value = value;
 		this.setChanged();
 		this.notifyObservers();
 	}
 	public void incrementValue(){
-		value++;
+		state.value++;
 		this.setChanged();
 		this.notifyObservers();
 	}	
 	public void decrementValue(){
-		value--;
+		state.value--;
 		this.setChanged();
 		this.notifyObservers();
 	}
 	public int getValue(){
-		return value;
+		return state.value;
 	}
 }

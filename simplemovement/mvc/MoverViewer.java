@@ -1,4 +1,4 @@
-package simplemovement;
+package simplemovement.mvc;
 
 import java.awt.BorderLayout;
 import java.awt.event.KeyListener;

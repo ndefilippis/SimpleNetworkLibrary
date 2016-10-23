@@ -1,4 +1,4 @@
-package netcode;
+package counter.netcode;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -12,14 +12,14 @@ import java.nio.channels.DatagramChannel;
 import java.util.LinkedList;
 import java.util.Queue;
 
-import mvc.Counter;
-import mvc.CounterController;
-import mvc.CounterViewer;
-import mvc.CounterInput;
+import counter.mvc.Counter;
+import counter.mvc.CounterController;
+import counter.mvc.CounterInput;
+import counter.mvc.CounterViewer;
+import counter.netcode.packet.CounterPacket;
 import netcode.packet.AcceptConnectPacket;
 import netcode.packet.ChangeValuePacket;
 import netcode.packet.ConnectPacket;
-import netcode.packet.CounterPacket;
 import netcode.packet.DisconnectPacket;
 import netcode.packet.Packet;
 
@@ -97,7 +97,7 @@ public class CounterClient{
 	private void handleConnect(AcceptConnectPacket packet){
 		this.id = packet.getID();
 		counter = new Counter(packet.getState());
-		viewer = new CounterViewer(counter.getValue());
+		viewer = new CounterViewer(counter.getState());
 		viewer.addWindowListener(new DisconnectListener(this));
 		viewer.addIncrementListener(new IncrementListener());
 		viewer.addDecrementListener(new DecrementListener());

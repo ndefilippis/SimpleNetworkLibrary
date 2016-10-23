@@ -1,4 +1,4 @@
-package simplemovement;
+package simplemovement.netcode;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -10,22 +10,26 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
 
-import mvc.Counter;
-import mvc.ServerCounterViewer;
-import netcode.packet.AcceptConnectPacket;
-import netcode.packet.ChangeValuePacket;
-import netcode.packet.CounterPacket;
 import netcode.packet.Packet;
+import simplemovement.GameLoop;
+import simplemovement.mvc.Input;
+import simplemovement.mvc.Mover;
+import simplemovement.mvc.MoverPlane;
+import simplemovement.netcode.packet.BeginConnectionPacket;
+import simplemovement.netcode.packet.InputPacket;
+import simplemovement.netcode.packet.MoverChangePacket;
+import simplemovement.netcode.packet.NewMoverPacket;
 
 public class MoverServer {
 	MoverPlane model;
 	DatagramChannel channel;
-	Map<SocketAddress, Long> clients = new HashMap<SocketAddress, Long>();
+	Map<SocketAddress, Integer> clients = new HashMap<SocketAddress, Integer>();
+	Map<Mover, Input> currentInputs = new HashMap<Mover, Input>();
 	Queue<Message> messagesToSend = new LinkedList<Message>();
 	ByteBuffer buf;
 	
-	private static final int MILLI_DELAY = 100;
-	private long nextID = 0L;
+	private static final int MILLI_DELAY = 0;
+	private int nextID = 0;
 	private long time;
 	
 	public MoverServer(int port) throws IOException{
@@ -37,12 +41,18 @@ public class MoverServer {
 	
 	public void start() throws IOException{
 		time = System.nanoTime();
+		long lastTime = time;
+		new Thread(new GameLoop(model)).start();
 		while(true){
+			lastTime = time;
+			time = System.nanoTime();
 			while(messagesToSend.size() > 0 && messagesToSend.peek().readyToSend(time)){
 				Message m = messagesToSend.poll();
 				sendMessage(m.getPacket(), m.getAddress());
 			}
-			time = System.nanoTime();
+			for(Mover m : model.getMovers()){
+				addMessageToAll(new MoverChangePacket(m, time - lastTime));
+			}
 			ByteBuffer buf = ByteBuffer.allocate(64);
 			buf.clear();
 			
@@ -60,14 +70,17 @@ public class MoverServer {
 	public void processMessge(ByteBuffer message, long timeReceived, SocketAddress address){
 		switch(Packet.lookupPacket(message)){
 		case CONNECT:
-			addMessage(new BeginConnectionPacket(model.getMovers(), nextID++), address);
+			Mover m = new Mover(nextID++, (int)(100 * Math.random()), (int)(-100 * Math.random()));
+			currentInputs.put(m, new Input(false, false, false, false, 0));
+			model.addMover(m);
+			addMessage(new BeginConnectionPacket(model.getMovers(), m.getID()), address);
+			addMessageToAll(new NewMoverPacket(m));
 			break;
 		case DISCONNECT:
 			clients.remove(address);
 			break;
-		case COUNTER:
-			Mover temp = handleInput(new InputPacket(timeReceived, message), 0);
-			addMessageToAll(new MoverChangePacket(temp, temp.getX(), temp.getY(), System.nanoTime()));
+		case NEWVALUE:
+			handleInput(new InputPacket(timeReceived, message), 15/1000D);
 			break;
 		default:
 			break;
@@ -88,18 +101,18 @@ public class MoverServer {
 		int dx = 0;
 		int dy = 0;
 		if(input.left){
-			dx -= 1;
-		}
-		if(input.right){
 			dx += 1;
 		}
-		if(input.down){
-			dy -= 1;
+		if(input.right){
+			dx -= 1;
 		}
-		if(input.up){
+		if(input.down){
 			dy += 1;
 		}
-		mover.move(dx, dy, dt);
+		if(input.up){
+			dy -= 1;
+		}
+		mover.setSpeed(dx, dy);
 	}
 	
 	private void addMessageToAll(Packet packet) {
@@ -120,12 +133,6 @@ public class MoverServer {
 	
 	private void addMessage(Packet p, SocketAddress address){
 		messagesToSend.offer(new Message(p, address, MILLI_DELAY));
-	}
-	
-	public static void main(String[] args) throws IOException{
-		MoverServer s = new MoverServer(1337);
-		s.start();
-		
 	}
 
 	private class Message{

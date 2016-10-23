@@ -1,12 +1,13 @@
-package simplemovement;
+package simplemovement.mvc;
 
 import java.util.Observable;
 
 public class Mover extends Observable{
 	private int id;
 	private double x, y;
+	private double dx, dy;
 	
-	private static double speed = 100;
+	private static double speed = 400;
 	
 	public Mover(int id, int x, int y){
 		this.id = id;
@@ -14,7 +15,7 @@ public class Mover extends Observable{
 		this.y = y;
 	}
 	
-	public void move(double dx, double dy, double dt){
+	public void update(double dt){
 		if(dx != 0 || dy != 0){
 			double length = Math.sqrt(dx * dx + dy * dy);
 			dx *= dt * speed/length;
@@ -24,6 +25,11 @@ public class Mover extends Observable{
 		y += dy;
 		this.setChanged();
 		this.notifyObservers();
+	}
+	
+	public void setSpeed(double dx, double dy){
+		this.dx = dx;
+		this.dy = dy;
 	}
 	
 	public int getID(){
@@ -36,6 +42,14 @@ public class Mover extends Observable{
 	
 	public int getY(){
 		return (int)y;
+	}
+	
+	public double getDx(){
+		return dx;
+	}
+	
+	public double getDy(){
+		return dy;
 	}
 	
 	@Override

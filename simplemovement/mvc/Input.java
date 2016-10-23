@@ -1,4 +1,4 @@
-package simplemovement;
+package simplemovement.mvc;
 
 public class Input {
 	public boolean left;
@@ -37,5 +37,17 @@ public class Input {
 	@Override
 	public String toString(){
 		return "left: " + left + ", right: " + right + ", up: " + up + ", down: " + down;
+	}
+	
+	@Override
+	public boolean equals(Object obj){
+		if(obj instanceof Input){
+			Input other = (Input)obj;
+			return this.left == other.left && 
+					this.right == other.right && 
+					this.down == other.down && 
+					this.up == other.up;
+		}
+		return false;
 	}
 }

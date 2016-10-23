@@ -16,6 +16,7 @@ public abstract class Packet {
 	private static int ackBitfield;
 	
 	private byte packetTypeID;
+	private int size;
 	
 	/* |----| 		packetID		 0	 3
  	 * |-|			packetTypeID	 4	 4

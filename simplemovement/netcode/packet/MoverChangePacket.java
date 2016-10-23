@@ -1,9 +1,10 @@
-package simplemovement;
+package simplemovement.netcode.packet;
 
 import java.nio.ByteBuffer;
 
 import netcode.packet.Packet;
 import netcode.packet.PacketType;
+import simplemovement.mvc.Mover;
 
 public class MoverChangePacket extends Packet {
 	private int moverID;
@@ -20,11 +21,11 @@ public class MoverChangePacket extends Packet {
 		this.updateTime = byteArrayToLong(arr, 12);
 	}
 	
-	public MoverChangePacket(Mover m, int newX, int newY, long updateTime){
+	public MoverChangePacket(Mover m, long updateTime){
 		super(PacketType.NEWVALUE);
 		this.moverID = m.getID();
-		this.newX = newX;
-		this.newY = newY;
+		this.newX = m.getX();
+		this.newY = m.getY();
 		this.updateTime = updateTime;
 	}
 	

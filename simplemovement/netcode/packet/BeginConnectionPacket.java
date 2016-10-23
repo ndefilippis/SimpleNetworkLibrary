@@ -1,4 +1,4 @@
-package simplemovement;
+package simplemovement.netcode.packet;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -7,6 +7,7 @@ import java.util.List;
 
 import netcode.packet.Packet;
 import netcode.packet.PacketType;
+import simplemovement.mvc.Mover;
 
 public class BeginConnectionPacket extends Packet{
 	private List<Mover> movers;

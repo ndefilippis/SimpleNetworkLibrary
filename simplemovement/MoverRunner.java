@@ -1,5 +1,9 @@
 package simplemovement;
 
+import simplemovement.mvc.Mover;
+import simplemovement.mvc.MoverController;
+import simplemovement.mvc.MoverPlane;
+import simplemovement.mvc.MoverViewer;
 
 public class MoverRunner {
 	public static void main(String[] args){
@@ -10,12 +14,8 @@ public class MoverRunner {
 		MoverViewer view = new MoverViewer(model.getMovers());
 		MoverController controller = new MoverController(model, view, myMover);
 		view.setVisible(true);
-		long time = System.nanoTime();
-		while(true){
-			long currentTime = System.nanoTime();
-			double dt = (currentTime - time) / 1000000000D;
-			controller.update(dt);
-			time = currentTime;
-		}
+		GameLoop loop = new GameLoop(model);
+		Thread thread = new Thread(loop);
+		thread.start();
 	}
 }

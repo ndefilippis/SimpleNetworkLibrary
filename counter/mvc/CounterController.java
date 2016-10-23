@@ -1,20 +1,18 @@
-package mvc;
+package counter.mvc;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-public class CounterController {
-	
-	private Counter model;
-	private CounterViewer view;
+import mvc.Controller;
+
+public class CounterController extends Controller<Counter, CounterViewer, CounterInput>{
 	
 	public CounterController(Counter counter, CounterViewer view){
-		this.model = counter;
-		this.view = view;
-		this.model.addObserver(view);
+		super(counter, view);
 		this.view.addIncrementListener(new IncrementListener());
 		this.view.addDecrementListener(new DecrementListener());
 	}
 	
+	@Override
 	public void handleInput(CounterInput input){
 		if(input.isIncrement()){
 			model.incrementValue();
