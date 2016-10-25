@@ -15,17 +15,15 @@ import java.util.Set;
 import counter.mvc.Counter;
 import counter.mvc.ServerCounterViewer;
 import counter.netcode.packet.CounterPacket;
+import netcode.Server;
 import netcode.packet.AcceptConnectPacket;
 import netcode.packet.ChangeValuePacket;
 import netcode.packet.Packet;
 
-public class CounterServer {
+public class CounterServer extends Server{
 	Counter counter;
-	DatagramChannel channel;
-	Map<SocketAddress, Long> clients = new HashMap<SocketAddress, Long>();
 	Queue<Message> messagesToSend = new LinkedList<Message>();
 	private ServerCounterViewer view;
-	ByteBuffer buf;
 	
 	private static final int MILLI_DELAY = 100;
 	private long nextID = 0L;
@@ -33,12 +31,10 @@ public class CounterServer {
 	private long id = -1L;
 	
 	public CounterServer(int port) throws IOException{
+		super(port);
 		this.counter = new Counter();
 		view = new ServerCounterViewer(counter.getValue());
 		counter.addObserver(view);
-		channel = DatagramChannel.open();
-		channel.socket().bind(new InetSocketAddress(port));
-		channel.configureBlocking(false);
 	}
 	
 	public void start() throws IOException{

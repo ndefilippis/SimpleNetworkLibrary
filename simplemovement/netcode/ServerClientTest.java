@@ -9,8 +9,6 @@ public class ServerClientTest {
 		new Thread(new ClientThread()).start();
 		Thread.sleep(500);
 		new Thread(new ClientThread()).start();
-		Thread.sleep(500);
-		new Thread(new ClientThread()).start();
 		
 	}
 	

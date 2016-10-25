@@ -6,10 +6,9 @@ import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.Map;
-import java.util.Queue;
 
+import netcode.Server;
 import netcode.packet.Packet;
 import simplemovement.GameLoop;
 import simplemovement.mvc.Input;
@@ -20,15 +19,13 @@ import simplemovement.netcode.packet.InputPacket;
 import simplemovement.netcode.packet.MoverChangePacket;
 import simplemovement.netcode.packet.NewMoverPacket;
 
-public class MoverServer {
+public class MoverServer extends Server{
 	MoverPlane model;
 	DatagramChannel channel;
 	Map<SocketAddress, Integer> clients = new HashMap<SocketAddress, Integer>();
 	Map<Mover, Input> currentInputs = new HashMap<Mover, Input>();
-	Queue<Message> messagesToSend = new LinkedList<Message>();
 	ByteBuffer buf;
 	
-	private static final int MILLI_DELAY = 0;
 	private int nextID = 0;
 	private long time;
 	
@@ -41,21 +38,14 @@ public class MoverServer {
 	
 	public void start() throws IOException{
 		time = System.nanoTime();
-		long lastTime = time;
 		new Thread(new GameLoop(model)).start();
 		while(true){
-			lastTime = time;
 			time = System.nanoTime();
-			while(messagesToSend.size() > 0 && messagesToSend.peek().readyToSend(time)){
-				Message m = messagesToSend.poll();
-				sendMessage(m.getPacket(), m.getAddress());
-			}
+			ByteBuffer buf = ByteBuffer.allocate(64);
+			buf.clear();
 			for(Mover m : model.getMovers()){
 				addMessageToAll(new MoverChangePacket(m, time - lastTime));
 			}
-			ByteBuffer buf = ByteBuffer.allocate(64);
-			buf.clear();
-			
 			SocketAddress clientAddress = channel.receive(buf);
 			if(clientAddress != null){
 				if(!clients.containsKey(clientAddress)){
@@ -114,12 +104,6 @@ public class MoverServer {
 		}
 		mover.setSpeed(dx, dy);
 	}
-	
-	private void addMessageToAll(Packet packet) {
-		for(SocketAddress addr : clients.keySet()){
-			addMessage(packet, addr);
-		}
-	}
 
 	public void sendMessage(Packet packet, SocketAddress address){
 		try {
@@ -129,36 +113,5 @@ public class MoverServer {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-	}
-	
-	private void addMessage(Packet p, SocketAddress address){
-		messagesToSend.offer(new Message(p, address, MILLI_DELAY));
-	}
-
-	private class Message{
-		private Packet p;
-		private SocketAddress address;
-		private int delay;
-		private long time;
-		
-		public Message(Packet p, SocketAddress address, int milliDelay){
-			this.p = p;
-			this.address = address;
-			this.delay = milliDelay;
-			time = System.nanoTime();
-		}
-		
-		public Packet getPacket(){
-			return p;
-		}
-		
-		public SocketAddress getAddress(){
-			return address;
-		}
-		
-		public boolean readyToSend(long currTime){
-			return delay < currTime - this.time;
-		}
-		
 	}
 }
