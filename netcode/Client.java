@@ -9,28 +9,40 @@ import netcode.packet.Packet;
 
 public abstract class Client extends RunnableLoop{
 	private DatagramChannel channel;
-	private ByteBuffer buf;
-	protected MessageSender messageSendQueue;
+	private Thread messageSendThread;
+	private Thread messageRecvThread;
 	protected MessageReceiver messageRecvQueue;
-	
-	private long id;
+	protected MessageSender messageSendQueue;
 	
 	public Client(String address, int port) throws IOException{
+		messageSendQueue = new MessageSender(channel);
+		messageSendThread = new Thread(messageSendQueue);
+		messageRecvQueue = new MessageReceiver(channel);
+		messageRecvThread = new Thread(messageRecvQueue);
 		channel = DatagramChannel.open();
 		channel.connect(new InetSocketAddress(address, port));
 		channel.configureBlocking(false);
-		buf.allocate(1024);
+	}
+
+	@Override
+	public void run(){
+		messageSendThread.start();
+		messageRecvThread.start();
+		super.run();
+		messageSendQueue.kill();
+		messageRecvQueue.kill();
 	}
 
 	@Override
 	protected void update() {
-		if(messageRecvQueue.getLatestData(buf) != null){
-			Packet packet = messageToPacket(buf, System.nanoTime());
+		ReceivedMessage latest;
+		if((latest = messageRecvQueue.getLatestData()) != null){
+			Packet packet = messageToPacket(latest.getData(), latest.getTimeReceived());
 			handlePacket(packet);
 		}
 	}
 	
-	protected abstract Packet messageToPacket(ByteBuffer message, long timeReceived); 
+	protected abstract Packet messageToPacket(byte[] message, long timeReceived); 
 
 	protected abstract void handlePacket(Packet packet);
 }

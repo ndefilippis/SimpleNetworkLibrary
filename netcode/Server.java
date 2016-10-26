@@ -15,12 +15,12 @@ public abstract class Server extends RunnableLoop{
 	private Map<SocketAddress, Integer> clients;
 	private Thread messageSendThread;
 	private Thread messageRecvThread;
-	protected ByteBuffer buf;
 	protected MessageReceiver messageRecvQueue;
 	protected MessageSender messageSendQueue;
 	protected int port;
-	
 	private int nextID = 0;
+	
+	private static final int MILLIS_DELAY = 0;
 	
 	public Server(int port) throws IOException{
 		messageSendQueue = new MessageSender(channel);
@@ -30,7 +30,6 @@ public abstract class Server extends RunnableLoop{
 		channel = DatagramChannel.open();
 		channel.socket().bind(new InetSocketAddress(port));
 		channel.configureBlocking(false);
-		buf = ByteBuffer.allocate(1024);
 	}
 	
 	@Override
@@ -42,21 +41,36 @@ public abstract class Server extends RunnableLoop{
 		messageRecvQueue.kill();
 	}
 	
-	public void addMessageToAll(Packet packet, int delay) {
+	protected void addClient(SocketAddress address){
+		clients.put(address, nextID++);
+	}
+	
+	protected void removeClient(SocketAddress address){
+		clients.remove(address);
+	}
+	
+	protected void addMessage(Packet packet, SocketAddress address){
+		messageSendQueue.addMessage(packet, address, MILLIS_DELAY);
+	}
+	
+	protected void addMessageToAll(Packet packet) {
 		for(SocketAddress addr : getClients()){
-			messageSendQueue.addMessage(packet, addr, delay);
+			messageSendQueue.addMessage(packet, addr, MILLIS_DELAY);
 		}
 	}
 	
 	@Override
 	protected void update(){
-		SocketAddress sender = messageRecvQueue.getLatestData(buf);
-		if(sender != null){
-			processMessage(buf, System.nanoTime(), sender);
+		ReceivedMessage message = messageRecvQueue.getLatestData();
+		if(message != null){
+			if(!clients.containsKey(message.getSender())){
+				addClient(message.getSender());
+			}
+			processMessage(message.getData(), message.getSender(), message.getTimeReceived());
 		}
 	}
 	
-	public abstract void processMessage(ByteBuffer message, long timeReceived, SocketAddress address);
+	public abstract void processMessage(ByteBuffer message, SocketAddress address, long timeReceived);
 	
 	public Collection<SocketAddress> getClients(){
 		return clients.keySet();

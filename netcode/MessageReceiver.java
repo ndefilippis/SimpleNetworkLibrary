@@ -9,7 +9,7 @@ import java.util.Queue;
 public class MessageReceiver extends RunnableLoop{
 	private DatagramChannel channel;
 	private ByteBuffer buf;
-	private Queue<Message> receivedMessages;
+	private Queue<ReceivedMessage> receivedMessages;
 	
 	public MessageReceiver(DatagramChannel channel){
 		super();
@@ -20,29 +20,20 @@ public class MessageReceiver extends RunnableLoop{
 	protected void update() {
 		try {
 			SocketAddress address = channel.receive(buf);
-			receivedMessages.offer(new Message(address, buf));
+			if(address != null){
+				receivedMessages.offer(new ReceivedMessage(address, buf, System.nanoTime()));
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 	
-	public SocketAddress getLatestData(ByteBuffer dst){
+	public ReceivedMessage getLatestData(){
 		if(receivedMessages.isEmpty()){
 			return null;
 		}
-		Message nextMessage = receivedMessages.poll();
-		dst.put(nextMessage.data);
-		return nextMessage.recvFrom;
+		return receivedMessages.poll();
 	}
 	
-	private class Message{
-		private SocketAddress recvFrom;
-		private byte[] data;
-		
-		public Message(SocketAddress recvFrom, ByteBuffer rawData){
-			this.recvFrom = recvFrom;
-			this.data = new byte[rawData.remaining()];
-			rawData.get(data);
-		}
-	}
+	
 }
