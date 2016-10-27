@@ -30,6 +30,14 @@ public abstract class Client extends RunnableLoop{
 	@Override
 	public void kill(){
 		super.kill();
+		messageSendQueue.kill();
+		messageRecvQueue.kill();
+		try {
+			messageSendThread.join();
+			messageRecvThread.join();
+		} catch (InterruptedException e1) {
+			e1.printStackTrace();
+		}
 		try {
 			channel.close();
 		} catch (IOException e) {
@@ -42,8 +50,6 @@ public abstract class Client extends RunnableLoop{
 		messageSendThread.start();
 		messageRecvThread.start();
 		super.run();
-		messageSendQueue.kill();
-		messageRecvQueue.kill();
 	}
 
 	@Override

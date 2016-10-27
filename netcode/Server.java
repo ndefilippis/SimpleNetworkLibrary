@@ -39,8 +39,6 @@ public abstract class Server extends RunnableLoop{
 		messageSendThread.start();
 		messageRecvThread.start();
 		super.run();
-		messageSendQueue.kill();
-		messageRecvQueue.kill();
 	}
 	
 	protected void addClient(SocketAddress address){
@@ -53,7 +51,16 @@ public abstract class Server extends RunnableLoop{
 	
 	@Override
 	public void kill(){
+		messageSendQueue.kill();
+		messageRecvQueue.kill();
 		super.kill();
+		try {
+			messageSendThread.join();
+			messageRecvThread.join();
+		} catch (InterruptedException e1) {
+			e1.printStackTrace();
+		}
+		
 		try {
 			channel.close();
 		} catch (IOException e) {
