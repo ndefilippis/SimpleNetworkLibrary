@@ -44,6 +44,7 @@ public class CounterServer extends Server{
 	
 	@Override
 	public void processMessage(ByteBuffer message, SocketAddress address, long timeReceived) {
+		System.out.println(Packet.lookupPacket(message)); 
 		switch(Packet.lookupPacket(message)){
 		case CONNECT:
 			addMessage(new AcceptConnectPacket(counter.getValue(), nextID++), address);
@@ -67,10 +68,5 @@ public class CounterServer extends Server{
 		else{
 			counter.decrementValue();
 		}
-	}
-
-	public static void main(String[] args) throws IOException{
-		CounterServer s = new CounterServer(1337);
-		new Thread(s).start();
 	}
 }

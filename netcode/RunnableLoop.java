@@ -22,6 +22,6 @@ public abstract class RunnableLoop implements Runnable{
 		}
 	}
 	
-	protected abstract void update();
+	protected  abstract void update();
 
 }

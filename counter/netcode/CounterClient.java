@@ -17,60 +17,34 @@ import counter.mvc.CounterController;
 import counter.mvc.CounterInput;
 import counter.mvc.CounterViewer;
 import counter.netcode.packet.CounterPacket;
+import netcode.Client;
 import netcode.packet.AcceptConnectPacket;
 import netcode.packet.ChangeValuePacket;
 import netcode.packet.ConnectPacket;
 import netcode.packet.DisconnectPacket;
 import netcode.packet.Packet;
 
-public class CounterClient{
-	private DatagramChannel channel;
+public class CounterClient extends Client{
 	private Counter counter;
 	private CounterViewer viewer;
 	private CounterController controller;
-	private ByteBuffer bufin;
-	private ByteBuffer bufout;
 	private Queue<CounterInput> knownInputs = new LinkedList<CounterInput>();
 	
 	private long id;
 	
 	public CounterClient(String address, int port) throws IOException{
-		channel = DatagramChannel.open();
-		channel.connect(new InetSocketAddress(address, port));
-		channel.configureBlocking(false);
-		sendMessage(new ConnectPacket());
+		super(address, port);
 	}
 	
-	public void start(){
-		while(true){
-			ByteBuffer message = recieveMessage();
-			if(message != null){
-				long timeReceived = System.nanoTime();
-				Packet packet = messageToPacket(message, timeReceived);
-				handlePacket(packet);
-			}
-			
-		}	
+	@Override
+	public void run(){
+		addMessage(new ConnectPacket());
+		super.run();
 	}
-	
-	public ByteBuffer recieveMessage(){
-		bufout = ByteBuffer.allocate(64);
-		bufout.clear();
-		SocketAddress d = null;
-		try {
-			d = channel.receive(bufout);
-		} catch (IOException e) {
-			return null;
-		}
-		if(d == null){
-			return null;
-		}
-		bufout.flip();
-		//System.out.println("RECV:" + ByteBufferConverter.bbArray(bufout) + d.toString());
-		return bufout;
-	}
-	
+
+	@Override
 	public Packet messageToPacket(ByteBuffer message, long timeReceived){
+		System.out.println("Client[messageToPacket] " + Packet.lookupPacket(message));
 		switch(Packet.lookupPacket(message)){
 		case ACCEPTCONNECT:
 			return new AcceptConnectPacket(timeReceived, message);
@@ -81,6 +55,7 @@ public class CounterClient{
 		}
 	}
 	
+	@Override
 	public void handlePacket(Packet packet){
 		switch(packet.getPacketType()){
 			case ACCEPTCONNECT:
@@ -115,25 +90,11 @@ public class CounterClient{
 		}
 	}
 	
-	public void sendMessage(Packet packet){
-		bufin = packet.toByteBuffer(System.nanoTime());
-		try {
-			channel.write(bufin);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-	
-	public static void main(String[] args) throws IOException{
-		CounterClient c = new CounterClient("localhost", 1337);
-		c.start();
-	}
-	
 	class IncrementListener implements ActionListener{
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			CounterInput input = new CounterInput(true);
-			sendMessage(new CounterPacket(input));
+			addMessage(new CounterPacket(input));
 			knownInputs.offer(input);
 		}
 		
@@ -143,7 +104,7 @@ public class CounterClient{
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			CounterInput input = new CounterInput(false);
-			sendMessage(new CounterPacket(input));
+			addMessage(new CounterPacket(input));
 			knownInputs.offer(input);
 		}
 	}
@@ -155,14 +116,9 @@ public class CounterClient{
 		
 		@Override
 		public void windowClosing(WindowEvent e) {
-			client.sendMessage(new DisconnectPacket());
-			try {
-				client.channel.close();
-			} catch (IOException e1) {
-				e1.printStackTrace();
-			}
+			addMessage(new DisconnectPacket());
+			kill();
 			e.getWindow().dispose();
-			
 			System.exit(0);
 		}
 	}

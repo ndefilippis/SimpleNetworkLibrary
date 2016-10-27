@@ -1,14 +1,14 @@
 package netcode.packet;
 
 public enum PacketType{
-	CONNECT(00),
+	CONNECT(05),
 	ACCEPTCONNECT(01),
 	
 	COUNTER(02),
 	NEWVALUE(03),
 	
 	DISCONNECT(04),
-	NEWPLAYER(05),
+	NEWPLAYER(00),
 	INVALID(06);
 	
 	private byte packetID;

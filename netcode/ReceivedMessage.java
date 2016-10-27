@@ -5,13 +5,15 @@ import java.nio.ByteBuffer;
 
 public class ReceivedMessage{
 	private SocketAddress recvFrom;
-	private byte[] data;
+	private ByteBuffer data;
 	private long timeReceived;
 	
 	public ReceivedMessage(SocketAddress recvFrom, ByteBuffer rawData, long timeReceived){
 		this.recvFrom = recvFrom;
-		this.data = new byte[rawData.remaining()];
-		rawData.get(data);
+		rawData.rewind();
+		this.data = ByteBuffer.allocate(rawData.remaining());
+		data.put(rawData);
+		data.flip();
 		this.timeReceived = timeReceived;
 	}
 	
@@ -19,7 +21,7 @@ public class ReceivedMessage{
 		return recvFrom;
 	}
 	
-	byte[] getData(){
+	ByteBuffer getData(){
 		return data;
 	}
 	

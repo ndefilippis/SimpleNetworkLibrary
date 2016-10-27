@@ -5,34 +5,40 @@ import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class MessageReceiver extends RunnableLoop{
 	private DatagramChannel channel;
 	private ByteBuffer buf;
-	private Queue<ReceivedMessage> receivedMessages;
+	private volatile Queue<ReceivedMessage> receivedMessages;
 	
 	public MessageReceiver(DatagramChannel channel){
 		super();
+		buf = ByteBuffer.allocate(512);
 		this.channel = channel;
+		this.receivedMessages = new ConcurrentLinkedQueue<ReceivedMessage>();
 	}
 
 	@Override
 	protected void update() {
+		SocketAddress address = null;
 		try {
-			SocketAddress address = channel.receive(buf);
-			if(address != null){
-				receivedMessages.offer(new ReceivedMessage(address, buf, System.nanoTime()));
-			}
+			address = channel.receive(buf);
 		} catch (IOException e) {
 			e.printStackTrace();
+		}
+		if(address != null){
+			receivedMessages.offer(new ReceivedMessage(address, buf, System.nanoTime()));
+			buf.rewind();
 		}
 	}
 	
 	public ReceivedMessage getLatestData(){
-		if(receivedMessages.isEmpty()){
-			return null;
-		}
 		return receivedMessages.poll();
+	}
+
+	public boolean hasMessages() {
+		return !receivedMessages.isEmpty();
 	}
 	
 	

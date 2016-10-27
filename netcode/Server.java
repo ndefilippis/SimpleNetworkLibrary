@@ -6,6 +6,7 @@ import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 
 import netcode.packet.Packet;
@@ -23,13 +24,14 @@ public abstract class Server extends RunnableLoop{
 	private static final int MILLIS_DELAY = 0;
 	
 	public Server(int port) throws IOException{
-		messageSendQueue = new MessageSender(channel);
-		messageSendThread = new Thread(messageSendQueue);
-		messageRecvQueue = new MessageReceiver(channel);
-		messageRecvThread = new Thread(messageRecvQueue);
 		channel = DatagramChannel.open();
 		channel.socket().bind(new InetSocketAddress(port));
 		channel.configureBlocking(false);
+		messageSendQueue = new MessageSender(channel);
+		messageSendThread = new Thread(messageSendQueue);
+		messageRecvQueue = new MessageReceiver(channel);
+		messageRecvThread = new Thread(messageRecvQueue);	
+		clients = new HashMap<SocketAddress, Integer>();
 	}
 	
 	@Override
@@ -49,6 +51,16 @@ public abstract class Server extends RunnableLoop{
 		clients.remove(address);
 	}
 	
+	@Override
+	public void kill(){
+		super.kill();
+		try {
+			channel.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	protected void addMessage(Packet packet, SocketAddress address){
 		messageSendQueue.addMessage(packet, address, MILLIS_DELAY);
 	}
@@ -61,8 +73,8 @@ public abstract class Server extends RunnableLoop{
 	
 	@Override
 	protected void update(){
-		ReceivedMessage message = messageRecvQueue.getLatestData();
-		if(message != null){
+		if(messageRecvQueue.hasMessages()){
+			ReceivedMessage message = messageRecvQueue.getLatestData();
 			if(!clients.containsKey(message.getSender())){
 				addClient(message.getSender());
 			}

@@ -1,6 +1,9 @@
 package counter.mvc;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 
 import mvc.Controller;
 
@@ -10,6 +13,7 @@ public class CounterController extends Controller<Counter, CounterViewer, Counte
 		super(counter, view);
 		this.view.addIncrementListener(new IncrementListener());
 		this.view.addDecrementListener(new DecrementListener());
+		this.view.addWindowListener(new DisconnectListener());
 	}
 	
 	@Override
@@ -33,6 +37,15 @@ public class CounterController extends Controller<Counter, CounterViewer, Counte
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			handleInput(new CounterInput(false));
+		}
+	}
+
+	class DisconnectListener extends WindowAdapter{
+
+		@Override
+		public void windowClosing(WindowEvent e) {
+			e.getWindow().dispose();
+			System.exit(0);
 		}
 	}
 }

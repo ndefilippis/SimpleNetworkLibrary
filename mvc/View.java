@@ -15,8 +15,8 @@ public abstract class View<S extends State> implements Observer{
 	
 	@Override
 	public void update(Observable o, Object arg){
-		if(arg instanceof State){
-			update((S)arg);
+		if(o instanceof Model){
+			update((S)((Model) o).getState());
 		}
 	}
 }

@@ -16,22 +16,26 @@ public class MessageSender extends RunnableLoop{
 	
 	public MessageSender(DatagramChannel channel){
 		super();
+		buf = ByteBuffer.allocate(512);
 		this.messagesToSend = new LinkedList<Message>();
 		this.channel = channel;
 	}
 	
 	public void addMessage(Packet p, SocketAddress address, int delay){
-		messagesToSend.offer(new Message(p, address, delay));
+		synchronized(messagesToSend){
+			messagesToSend.offer(new Message(p, address, delay));
+		}
 	}
 	
 	@Override
 	protected void update() {
 		long time = System.nanoTime();
-		while(messagesToSend.size() > 0 && messagesToSend.peek().readyToSend(time)){
-			Message m = messagesToSend.poll();
-			sendMessage(m.getPacket(), m.getAddress());
+		synchronized(messagesToSend){
+			while(!messagesToSend.isEmpty() && messagesToSend.peek().readyToSend(time)){
+				Message m = messagesToSend.poll();
+				sendMessage(m.getPacket(), m.getAddress());
+			}
 		}
-		
 	}
 	
 	private void sendMessage(Packet packet, SocketAddress address){
