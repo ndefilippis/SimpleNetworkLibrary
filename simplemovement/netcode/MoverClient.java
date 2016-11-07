@@ -12,6 +12,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Queue;
 
+import netcode.Client;
 import netcode.packet.ConnectPacket;
 import netcode.packet.DisconnectPacket;
 import netcode.packet.Packet;
@@ -27,7 +28,7 @@ import simplemovement.netcode.packet.InputPacket;
 import simplemovement.netcode.packet.MoverChangePacket;
 import simplemovement.netcode.packet.NewMoverPacket;
 
-public class MoverClient {
+public class MoverClient extends Client{
 	private DatagramChannel channel;
 	
 	private Mover myMover;

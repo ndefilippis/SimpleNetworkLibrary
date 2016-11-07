@@ -21,41 +21,19 @@ import simplemovement.netcode.packet.NewMoverPacket;
 
 public class MoverServer extends Server{
 	MoverPlane model;
-	DatagramChannel channel;
-	Map<SocketAddress, Integer> clients = new HashMap<SocketAddress, Integer>();
-	Map<Mover, Input> currentInputs = new HashMap<Mover, Input>();
-	ByteBuffer buf;
-	
+
 	private int nextID = 0;
 	private long time;
 	
 	public MoverServer(int port) throws IOException{
+		super(port);
 		this.model = new MoverPlane();
-		channel = DatagramChannel.open();
-		channel.socket().bind(new InetSocketAddress(port));
-		channel.configureBlocking(false);
 	}
 	
-	public void start() throws IOException{
-		time = System.nanoTime();
+	public void run(){
 		new Thread(new GameLoop(model)).start();
-		while(true){
-			time = System.nanoTime();
-			ByteBuffer buf = ByteBuffer.allocate(64);
-			buf.clear();
-			for(Mover m : model.getMovers()){
-				addMessageToAll(new MoverChangePacket(m, time - lastTime));
-			}
-			SocketAddress clientAddress = channel.receive(buf);
-			if(clientAddress != null){
-				if(!clients.containsKey(clientAddress)){
-					clients.put(clientAddress, nextID);
-				}
-				buf.flip();
-				processMessge(buf, System.nanoTime(), clientAddress);
-			}
-		}
 	}
+
 	
 	public void processMessge(ByteBuffer message, long timeReceived, SocketAddress address){
 		switch(Packet.lookupPacket(message)){
@@ -113,5 +91,11 @@ public class MoverServer extends Server{
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	@Override
+	public void processMessage(ByteBuffer message, SocketAddress address, long timeReceived) {
+		// TODO Auto-generated method stub
+		
 	}
 }

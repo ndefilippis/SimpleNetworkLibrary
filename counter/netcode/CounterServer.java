@@ -25,8 +25,6 @@ public class CounterServer extends Server{
 	private ServerCounterViewer view;
 	
 	private long nextID = 0L;
-	private long time;
-	private long id = -1L;
 	
 	public CounterServer(int port) throws IOException{
 		super(port);
