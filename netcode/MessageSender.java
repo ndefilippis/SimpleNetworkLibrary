@@ -8,6 +8,7 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 import netcode.packet.Packet;
+import threading.RunnableLoop;
 
 public class MessageSender extends RunnableLoop{
 	private Queue<Message> messagesToSend;

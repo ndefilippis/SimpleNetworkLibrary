@@ -7,6 +7,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 
 import netcode.packet.Packet;
+import threading.RunnableLoop;
 
 public abstract class Client extends RunnableLoop{
 	private DatagramChannel channel;

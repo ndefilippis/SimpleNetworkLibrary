@@ -3,7 +3,7 @@ package test;
 import java.util.LinkedList;
 import java.util.Queue;
 
-import netcode.RunnableLoop;
+import threading.RunnableLoop;
 
 public class QueueTest {
 	public static void main(String[] args) throws InterruptedException{

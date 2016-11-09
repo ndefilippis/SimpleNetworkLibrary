@@ -7,6 +7,8 @@ import java.nio.channels.DatagramChannel;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import threading.RunnableLoop;
+
 public class MessageReceiver extends RunnableLoop{
 	private DatagramChannel channel;
 	private ByteBuffer buf;
