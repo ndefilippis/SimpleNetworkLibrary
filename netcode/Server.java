@@ -73,6 +73,15 @@ public abstract class Server extends RunnableLoop{
 		messageSendQueue.addMessage(packet, address, MILLIS_DELAY);
 	}
 	
+	protected void addMessageToAllExcept(Packet packet, SocketAddress address){
+		for(SocketAddress addr : getClients()){
+			if(addr == address){
+				continue;
+			}
+			messageSendQueue.addMessage(packet, addr, MILLIS_DELAY);
+		}
+	}
+	
 	protected void addMessageToAll(Packet packet) {
 		for(SocketAddress addr : getClients()){
 			messageSendQueue.addMessage(packet, addr, MILLIS_DELAY);
