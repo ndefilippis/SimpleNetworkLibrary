@@ -36,8 +36,8 @@ public class MoverServer extends Server{
 		case CONNECT:
 			Mover m = new Mover(nextID++, (int)(100 * Math.random()), (int)(-100 * Math.random()));
 			model.addMover(m);
+			addMessageToAll(new NewMoverPacket(m));
 			addMessage(new BeginConnectionPacket(model.getMovers(), m.getID()), address);
-			addMessageToAllExcept(new NewMoverPacket(m), address);
 			break;
 		case DISCONNECT:
 			removeClient(address);

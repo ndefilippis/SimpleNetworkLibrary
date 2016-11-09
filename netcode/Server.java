@@ -72,16 +72,7 @@ public abstract class Server extends RunnableLoop{
 	protected void addMessage(Packet packet, SocketAddress address){
 		messageSendQueue.addMessage(packet, address, MILLIS_DELAY);
 	}
-	
-	protected void addMessageToAllExcept(Packet packet, SocketAddress address){
-		for(SocketAddress addr : getClients()){
-			if(addr == address){
-				continue;
-			}
-			messageSendQueue.addMessage(packet, addr, MILLIS_DELAY);
-		}
-	}
-	
+
 	protected void addMessageToAll(Packet packet) {
 		for(SocketAddress addr : getClients()){
 			messageSendQueue.addMessage(packet, addr, MILLIS_DELAY);
@@ -92,10 +83,10 @@ public abstract class Server extends RunnableLoop{
 	protected void update(){
 		if(messageRecvQueue.hasMessages()){
 			ReceivedMessage message = messageRecvQueue.getLatestData();
+			processMessage(message.getData(), message.getSender(), message.getTimeReceived());
 			if(!clients.containsKey(message.getSender())){
 				addClient(message.getSender());
 			}
-			processMessage(message.getData(), message.getSender(), message.getTimeReceived());
 		}
 	}
 	
