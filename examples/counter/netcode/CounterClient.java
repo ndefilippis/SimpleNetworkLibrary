@@ -16,10 +16,10 @@ import examples.counter.mvc.Counter;
 import examples.counter.mvc.CounterController;
 import examples.counter.mvc.CounterInput;
 import examples.counter.mvc.CounterViewer;
+import examples.counter.netcode.packet.ChangeValuePacket;
 import examples.counter.netcode.packet.CounterPacket;
 import netcode.Client;
 import netcode.packet.AcceptConnectPacket;
-import netcode.packet.ChangeValuePacket;
 import netcode.packet.ConnectPacket;
 import netcode.packet.DisconnectPacket;
 import netcode.packet.Packet;
@@ -70,7 +70,10 @@ public class CounterClient extends Client{
 	
 	private void handleConnect(AcceptConnectPacket packet){
 		this.id = packet.getID();
-		counter = new Counter(packet.getState());
+	}
+	
+	private void initialize(int value){
+		counter = new Counter(value);
 		viewer = new CounterViewer(counter.getState());
 		viewer.addWindowListener(new DisconnectListener(this));
 		viewer.addIncrementListener(new IncrementListener());
@@ -80,6 +83,9 @@ public class CounterClient extends Client{
 	}
 	
 	private void handleChangeValue(ChangeValuePacket packet){
+		if(counter == null){
+			initialize(packet.getValue());
+		}
 		counter.setValue(packet.getValue());
 		while(knownInputs.size() > 0 && knownInputs.peek().getTime() < packet.getUpdateTime()){
 			knownInputs.poll();

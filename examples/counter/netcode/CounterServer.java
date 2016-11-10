@@ -14,10 +14,10 @@ import java.util.Set;
 
 import examples.counter.mvc.Counter;
 import examples.counter.mvc.ServerCounterViewer;
+import examples.counter.netcode.packet.ChangeValuePacket;
 import examples.counter.netcode.packet.CounterPacket;
 import netcode.Server;
 import netcode.packet.AcceptConnectPacket;
-import netcode.packet.ChangeValuePacket;
 import netcode.packet.Packet;
 
 public class CounterServer extends Server{
@@ -44,12 +44,13 @@ public class CounterServer extends Server{
 	public void processMessage(ByteBuffer message, SocketAddress address, long timeReceived) {
 		switch(Packet.lookupPacket(message)){
 		case CONNECT:
-			addMessage(new AcceptConnectPacket(counter.getValue(), nextID++), address);
+			addMessage(new AcceptConnectPacket(nextID++), address);
+			addMessage(new ChangeValuePacket(counter.getValue(), System.nanoTime()), address);
 			break;
 		case DISCONNECT:
 			removeClient(address);
 			break;
-		case COUNTER:
+		case INPUT:
 			handleInput(new CounterPacket(timeReceived, message));
 			addMessageToAll(new ChangeValuePacket(counter.getValue(), System.nanoTime()));
 			break;

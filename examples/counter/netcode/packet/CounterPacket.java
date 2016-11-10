@@ -17,7 +17,7 @@ public class CounterPacket extends Packet{
 	}
 	
 	public CounterPacket(CounterInput input){
-		super(PacketType.COUNTER);
+		super(PacketType.INPUT);
 		this.input = input;
 	}
 

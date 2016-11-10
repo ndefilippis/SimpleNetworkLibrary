@@ -22,7 +22,7 @@ public abstract class Server extends RunnableLoop{
 	protected int port;
 	private int nextID = 0;
 	
-	private static final int MILLIS_DELAY = 2500;
+	private static final int MILLIS_DELAY = 500;
 	
 	public Server(int port) throws IOException{
 		channel = DatagramChannel.open();

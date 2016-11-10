@@ -1,6 +1,9 @@
-package netcode.packet;
+package examples.counter.netcode.packet;
 
 import java.nio.ByteBuffer;
+
+import netcode.packet.Packet;
+import netcode.packet.PacketType;
 
 public class ChangeValuePacket extends Packet{
 	

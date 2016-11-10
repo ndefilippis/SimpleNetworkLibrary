@@ -72,7 +72,7 @@ public class MessageSender extends RunnableLoop{
 		}
 		
 		public boolean readyToSend(long currTime){
-			return delay < currTime - this.time;
+			return delay * 1000000 < currTime - this.time;
 		}
 	}
 }

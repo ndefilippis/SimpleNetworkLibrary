@@ -1,15 +1,17 @@
 package netcode.packet;
 
 public enum PacketType{
-	CONNECT(05),
-	ACCEPTCONNECT(01),
+	INVALID(-1),		//SERVER, CLIENT
 	
-	COUNTER(02),
-	NEWVALUE(03),
+	CONNECT(05),		//CLIENT
+	ACCEPTCONNECT(01),	//SERVER
 	
-	DISCONNECT(04),
-	NEWPLAYER(00),
-	INVALID(06);
+	INPUT(02),			//CLIENT
+	NEWVALUE(03),		//SERVER
+	
+	DISCONNECT(04),		//CLIENT
+	NEWPLAYER(00);		//SERVER
+	
 	
 	private byte packetID;
 	
