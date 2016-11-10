@@ -7,9 +7,12 @@ import java.nio.ByteBuffer;
 import examples.simplemovement.mvc.Mover;
 import examples.simplemovement.mvc.MoverInput;
 import examples.simplemovement.mvc.MoverPlane;
+import examples.simplemovement.mvc.MoverState;
 import examples.simplemovement.netcode.packet.BeginConnectionPacket;
 import examples.simplemovement.netcode.packet.MoverInputPacket;
 import examples.simplemovement.netcode.packet.NewMoverPacket;
+import mvc.State;
+import netcode.GameUpdateLoop;
 import netcode.Server;
 import netcode.packet.Packet;
 import threading.GameLoop;
@@ -28,6 +31,7 @@ public class MoverServer extends Server{
 	@Override
 	public void run(){
 		new Thread(new GameLoop<MoverPlane>(model, 16)).start();
+		new Thread(new MoverUpdateLoop(50L, this, model));
 		super.run();
 	}
 	
@@ -76,5 +80,20 @@ public class MoverServer extends Server{
 			dy -= 1;
 		}
 		mover.setSpeed(dx, dy);
+	}
+
+	private class MoverUpdateLoop extends GameUpdateLoop<MoverPlane, MoverState>{
+
+		public MoverUpdateLoop(long milliDelay, Server server, MoverPlane model) {
+			super(milliDelay, server, model);
+		}
+
+		@Override
+		protected Packet serializeState(MoverState state) {
+			return null;
+		}
+
+
+		
 	}
 }

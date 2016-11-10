@@ -41,7 +41,9 @@ public class MessageSender extends RunnableLoop{
 	
 	private void sendMessage(Packet packet, SocketAddress address){
 		try {
-			buf = packet.toByteBuffer(System.nanoTime());
+			buf.clear();
+			packet.toByteBuffer(buf, System.nanoTime());
+			buf.flip();
 			channel.send(buf, address);
 		} catch (IOException e) {
 			e.printStackTrace();

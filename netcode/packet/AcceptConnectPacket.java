@@ -14,18 +14,14 @@ public class AcceptConnectPacket extends Packet{
 	}
 	public AcceptConnectPacket(long timeReceived, ByteBuffer data) {
 		super(timeReceived, data);
-		byte[] temp = new byte[data.remaining()];
-		data.get(temp, 0, temp.length);
-		state = byteArrayToInt(temp, 0);
-		this.id = byteArrayToLong(temp, 4);
+		state = data.getInt();
+		this.id = data.getLong();
 	}
 
 	@Override
-	protected byte[] encodeData() {
-		byte[] stateArray = new byte[12];
-		intToByteArray(state, stateArray, 0);
-		longToByteArray(id, stateArray, 4);
-		return stateArray;
+	protected void encodeData(ByteBuffer buffer) {
+		buffer.putInt(state);
+		buffer.putLong(id);
 	}
 	
 	public int getState(){

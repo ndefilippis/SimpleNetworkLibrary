@@ -15,10 +15,10 @@ public class MoverChangePacket extends Packet {
 		super(timeReceived, data);
 		byte[] arr = new byte[data.remaining()];
 		data.get(arr);
-		moverID = byteArrayToInt(arr, 0);
-		newX = byteArrayToInt(arr, 4);
-		newY = byteArrayToInt(arr, 8);
-		this.updateTime = byteArrayToLong(arr, 12);
+		moverID = data.getInt();
+		newX = data.getInt();
+		newY = data.getInt();
+		this.updateTime = data.getLong();
 	}
 	
 	public MoverChangePacket(Mover m, long updateTime){
@@ -42,13 +42,11 @@ public class MoverChangePacket extends Packet {
 	}
 
 	@Override
-	protected byte[] encodeData() {
-		byte[] arr = new byte[20];
-		intToByteArray(moverID, arr, 0);
-		intToByteArray(newX, arr, 4);
-		intToByteArray(newY, arr, 8);
-		longToByteArray(updateTime, arr, 12);
-		return arr;
+	protected void encodeData(ByteBuffer data) {
+		data.putInt(moverID);
+		data.putInt(newX);
+		data.putInt(newY);
+		data.putLong(updateTime);
 	}
 
 	public long getUpdateTime() {

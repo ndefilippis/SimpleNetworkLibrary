@@ -23,6 +23,7 @@ public class MoverViewer extends View<MoverState>{
 		screen.update(state.movers);
 	}
 	
+	
 	public void setVisible(boolean value){
 		frame.setVisible(value);
 	}

@@ -1,8 +1,11 @@
 package examples.counter.mvc;
 
-import mvc.State;
+import java.nio.ByteBuffer;
 
-public class CounterState implements State{
+import mvc.State;
+import netcode.Serializable;
+
+public class CounterState implements State, Serializable{
 	public int value;
 	
 	public CounterState(int value) {
@@ -11,6 +14,16 @@ public class CounterState implements State{
 	
 	public CounterState(){
 		this.value = 0;
+	}
+
+	@Override
+	public void serializeRead(ByteBuffer buffer) {
+		this.value = buffer.getInt();
+	}
+
+	@Override
+	public void serializeWrite(ByteBuffer buffer) {
+		buffer.putInt(value);
 	}
 	
 	

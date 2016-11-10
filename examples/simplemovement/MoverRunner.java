@@ -15,7 +15,7 @@ public class MoverRunner {
 		MoverViewer view = new MoverViewer(model.getState());
 		MoverController controller = new MoverController(model, view, myMover);
 		view.setVisible(true);
-		GameLoop<MoverPlane> loop = new GameLoop<MoverPlane>(model, 100);
+		GameLoop<MoverPlane> loop = new GameLoop<MoverPlane>(model, 16);
 		Thread thread = new Thread(loop);
 		thread.start();
 	}

@@ -12,12 +12,7 @@ public class NewMoverPacket extends Packet {
 	
 	public NewMoverPacket(long timeReceived, ByteBuffer data) {
 		super(timeReceived, data);
-		byte[] arr = new byte[data.remaining()];
-		data.get(arr);
-		int id = byteArrayToInt(arr, 0);
-		int x = byteArrayToInt(arr, 4);
-		int y = byteArrayToInt(arr, 8);
-		this.m = new Mover(id, x, y);
+		this.m = new Mover(data);
 	}
 	
 	public NewMoverPacket(Mover m){
@@ -30,12 +25,8 @@ public class NewMoverPacket extends Packet {
 	}
 
 	@Override
-	protected byte[] encodeData() {
-		byte[] arr = new byte[12];
-		intToByteArray(m.getID(), arr, 0);
-		intToByteArray(m.getX(), arr, 4);
-		intToByteArray(m.getY(), arr, 8);
-		return arr;
+	protected void encodeData(ByteBuffer buffer) {
+		m.serializeWrite(buffer);
 	}
 
 }

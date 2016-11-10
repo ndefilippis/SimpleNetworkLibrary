@@ -22,8 +22,8 @@ public class CounterPacket extends Packet{
 	}
 
 	@Override
-	protected byte[] encodeData() {
-		return new byte[]{this.input.isIncrement() ? (byte)1 : (byte)0};
+	protected void encodeData(ByteBuffer buffer) {
+		buffer.put(this.input.isIncrement() ? (byte)1 : (byte)0);
 	}
 
 	public boolean isIncrement() {

@@ -1,22 +1,17 @@
 package netcode.packet;
 
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import netcode.ByteBufferConverter;
-
 public abstract class Packet {
-	private long timeReceived;
-	
 	protected int packetID;
+	private byte packetTypeID;
+	private long timeReceived, timeSent;
+	private int remoteAckBitField;
 	
 	protected static int remotePacketID;
 	private static int ackBitfield;
-	
-	private byte packetTypeID;
-	private int size;
 	
 	/* |----| 		packetID		 0	 3
  	 * |-|			packetTypeID	 4	 4
@@ -25,9 +20,7 @@ public abstract class Packet {
 	 * |----|		ackBitfield		17	20
 	 */
 	
-	
 	private static int nextPacketID = 0;
-	private static final int HEADER_SIZE = 21;
 	
 	private static int getNextID(){
 		return nextPacketID++;
@@ -35,19 +28,35 @@ public abstract class Packet {
 	
 	public Packet(long timeReceived, ByteBuffer data) {
 		this.timeReceived = timeReceived;
-		byte[] header = new byte[HEADER_SIZE];
-		data.get(header, 0, HEADER_SIZE);
 		
-		int lastRemotePacketID = remotePacketID;
-		remotePacketID = byteArrayToInt(header, 0);
+		remotePacketID = data.getInt();
+		packetTypeID = data.get();
+		this.timeReceived = timeReceived;
+		timeSent = data.getLong();
+		remotePacketID = data.getInt();
+		remoteAckBitField = data.getInt();
+		ackBitfield = getAckBitfield();
+		
+	}
+	
+	private int getAckBitfield(){
 		int newACK = 0;
+		int lastRemotePacketID = remotePacketID;
 		for(int i = remotePacketID - lastRemotePacketID - 1; i < 32; i++){
 			if(((ackBitfield >> i) & 1) == 1){
 				newACK |= 1 << i;
 			}
 		}
-		ackBitfield = newACK;
-		packetTypeID = header[4];
+		return newACK;
+	}
+	
+	public void toByteBuffer(ByteBuffer buffer, long timeSent){
+		buffer.putInt(packetID);
+		buffer.put(packetTypeID);
+		buffer.putLong(timeSent);
+		buffer.putInt(remotePacketID);
+		buffer.putInt(ackBitfield);
+		this.encodeData(buffer);
 	}
 	
 	public static Map<Integer, Boolean> getReceivedPackets(){
@@ -61,59 +70,13 @@ public abstract class Packet {
 	public Packet(PacketType type){
 		this.packetID = getNextID();
 		this.packetTypeID = type.getID();
-	}
-	
-	protected static void intToByteArray(int value, byte[] array, int start){
-		for(int i = 0; i < 4; i++){
-			array[i + start] = (byte) (value >>> (8 * i));
-		}
-	}
-	
-	protected int byteArrayToInt(byte[] array, int start){
-		int ret = 0;
-		for(int i = 0; i < 4; i++){
-			ret |= (array[i + start] & 0xff) << (8 * i) ;
-		}
-		return ret;
-	}
-	
-	protected void longToByteArray(long value, byte[] array, int start){
-		for(int i = 0; i < 8; i++){
-			array[i + start] = (byte) (value >>> (8 * i));
-		}
-	}
-	
-	protected long byteArrayToLong(byte[] array, int start){
-		long ret = 0;
-		for(int i = 0; i <  8; i++){
-			ret |= ((long) array[i + start] & 0xffL) << (8 * i) ;
-		}
-		return ret;
-	}
-
-	public ByteBuffer toByteBuffer(long timeSent){
-		byte[] header = new byte[HEADER_SIZE];
-		
-		intToByteArray(packetID, header, 0);
-		header[4] = packetTypeID;
-		
-		longToByteArray(timeSent, header, 5);
-		intToByteArray(remotePacketID, header, 13);
-		intToByteArray(ackBitfield, header, 17);
-		
-		byte[] data = encodeData();
-		ByteBuffer buf = ByteBuffer.allocate(header.length + data.length);
-		buf.put(header);
-		buf.put(data);
-		buf.flip();
-		return buf;	
-	}
+	}	
 	
 	public PacketType getPacketType(){
 		return PacketType.lookupPacket(packetTypeID);
 	}
 	
-	protected abstract byte[] encodeData();
+	protected abstract void encodeData(ByteBuffer buffer);
 	
 	public int getRemotePacketID(){
 		return remotePacketID;

@@ -39,4 +39,19 @@ public class ByteBufferConverter {
 		}
 		return "[" + s.substring(2) + "]";
 	}
+	
+	public static void serializeWriteIntArray(ByteBuffer buffer, int[] array){
+		buffer.putInt(array.length);
+		for(int i = 0; i < array.length; i++){
+			buffer.putInt(array[i]);
+		}
+	} 
+	
+	public static <T extends Serializable> void serializeWriteArray(ByteBuffer buffer, T[] array){
+		buffer.putInt(array.length);
+		for(int i = 0; i < array.length; i++){
+			array[i].serializeWrite(buffer);
+		}
+	} 
+	
 }

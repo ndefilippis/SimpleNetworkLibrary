@@ -6,7 +6,6 @@ import java.util.List;
 import javax.swing.JPanel;
 
 public class MoverPanel extends JPanel{
-	
 	private static final int WIDTH = 20;
 	private static final int HEIGHT = 20;
 	
@@ -21,6 +20,7 @@ public class MoverPanel extends JPanel{
 		}
 	}
 
+	
 	public void update(List<Mover> movers){
 		moversToDraw = movers;
 		repaint();

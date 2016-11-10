@@ -1,5 +1,6 @@
 package mvc;
 
-public interface State {
+import java.nio.ByteBuffer;
 
+public interface State {
 }

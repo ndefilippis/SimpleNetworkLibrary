@@ -157,7 +157,6 @@ public class MoverClient extends Client{
 			client.addMessage(new DisconnectPacket());
 			kill();
 			e.getWindow().dispose();
-			System.exit(0);
 		}
 	}
 }

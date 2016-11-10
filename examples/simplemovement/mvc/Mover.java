@@ -1,8 +1,12 @@
 package examples.simplemovement.mvc;
 
+import java.nio.ByteBuffer;
 import java.util.Observable;
 
-public class Mover extends Observable{
+import mvc.State;
+import netcode.Serializable;
+
+public class Mover extends Observable implements State, Serializable{
 	private int id;
 	private double x, y;
 	private double dx, dy;
@@ -13,6 +17,10 @@ public class Mover extends Observable{
 		this.id = id;
 		this.x = x;
 		this.y = y;
+	}
+	
+	public Mover(ByteBuffer buffer){
+		serializeRead(buffer);
 	}
 	
 	public void update(double dt){
@@ -62,5 +70,24 @@ public class Mover extends Observable{
 		this.y = y;
 		this.setChanged();
 		this.notifyObservers();
+	}
+
+	
+	@Override
+	public void serializeRead(ByteBuffer buffer) {
+		this.id = buffer.getInt();
+		this.x  = buffer.getDouble();
+		this.y  = buffer.getDouble();
+		this.dx = buffer.getDouble();
+		this.dy = buffer.getDouble();
+	}
+
+	@Override
+	public void serializeWrite(ByteBuffer buffer) {
+		buffer.putInt(id);
+		buffer.putDouble(x);
+		buffer.putDouble(y);
+		buffer.putDouble(dx);
+		buffer.putDouble(dy);
 	}
 }

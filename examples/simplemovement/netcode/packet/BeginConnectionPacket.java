@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import examples.simplemovement.mvc.Mover;
+import netcode.ByteBufferConverter;
 import netcode.packet.Packet;
 import netcode.packet.PacketType;
 
@@ -16,18 +17,12 @@ public class BeginConnectionPacket extends Packet{
 	public BeginConnectionPacket(long timeReceived, ByteBuffer data) {
 		super(timeReceived, data);
 		movers = new ArrayList<Mover>();
-		byte[] arr = new byte[data.remaining()];
-		data.get(arr);
-		int count = byteArrayToInt(arr, 0);
+		int count = data.getInt();
 		for(int i = 0; i < count; i++){
-			Mover m;
-			int id = byteArrayToInt(arr, 4 + i * 12);
-			int x =  byteArrayToInt(arr, 8 + i * 12);
-			int y =  byteArrayToInt(arr, 12+ i * 12);
-			m = new Mover(id, x, y);
+			Mover m = new Mover(data);
 			movers.add(m);
 		}
-		this.clientID = byteArrayToInt(arr, arr.length - 4);
+		this.clientID = data.getInt();
 	}
 	
 	public BeginConnectionPacket(List<Mover> movers, long clientID){
@@ -45,17 +40,12 @@ public class BeginConnectionPacket extends Packet{
 	}
 	
 	@Override
-	protected byte[] encodeData() {
-		byte[] arr = new byte[movers.size()*3*4 + 8];
-		intToByteArray(movers.size(), arr, 0);
+	protected void encodeData(ByteBuffer buffer) {
+		buffer.putInt(movers.size());
 		for(int i = 0; i < movers.size(); i++){
-			Mover m = movers.get(i);
-			intToByteArray(m.getID(), arr, 4 + i * 12);
-			intToByteArray(m.getX(),  arr, 8 + i * 12);
-			intToByteArray(m.getY(),  arr, 12+ i * 12);
+			movers.get(i).serializeWrite(buffer);
 		}
-		intToByteArray(clientID, arr, arr.length - 4);
-		return arr;
+		buffer.putInt(clientID);
 	}
 	
 }

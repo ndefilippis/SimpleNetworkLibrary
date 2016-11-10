@@ -44,7 +44,6 @@ public class CounterClient extends Client{
 
 	@Override
 	public Packet messageToPacket(ByteBuffer message, long timeReceived){
-		System.out.println("Client[messageToPacket] " + Packet.lookupPacket(message));
 		switch(Packet.lookupPacket(message)){
 		case ACCEPTCONNECT:
 			return new AcceptConnectPacket(timeReceived, message);

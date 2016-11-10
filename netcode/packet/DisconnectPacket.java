@@ -13,8 +13,8 @@ public class DisconnectPacket extends Packet{
 	}
 
 	@Override
-	protected byte[] encodeData() {
-		return new byte[0];
+	protected void encodeData(ByteBuffer buffer) {
+		return;
 	}
 
 }
