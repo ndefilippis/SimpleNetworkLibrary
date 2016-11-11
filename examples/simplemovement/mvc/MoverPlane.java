@@ -13,7 +13,9 @@ public class MoverPlane extends TimedModel<MoverState> implements Observer{
 	}
 	
 	public void addMover(Mover mover){
-		state.movers.add(mover);
+		synchronized(state.movers){
+			state.movers.add(mover);
+		}
 		mover.addObserver(this);
 		this.setChanged();
 		this.notifyObservers();
@@ -32,8 +34,10 @@ public class MoverPlane extends TimedModel<MoverState> implements Observer{
 	}
 
 	public void update(double dt) {
-		for(Mover mover : state.movers){
-			mover.update(dt);
+		synchronized(state.movers){
+			for(Mover mover : state.movers){
+				mover.update(dt);
+			}
 		}
 	}
 }

@@ -10,10 +10,10 @@ public class ChangeValuePacket extends Packet{
 	private int value;
 	private long updateTime;
 	
-	public ChangeValuePacket(int newValue, long lastAcknowledgedTime){
+	public ChangeValuePacket(int newValue, long updateTime){
 		super(PacketType.NEWVALUE);
 		this.value = newValue;
-		this.updateTime = lastAcknowledgedTime;
+		this.updateTime = updateTime;
 	}
 
 	public ChangeValuePacket(long timeReceived, ByteBuffer data) {

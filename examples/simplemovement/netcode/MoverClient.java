@@ -20,6 +20,7 @@ import examples.simplemovement.netcode.packet.MoverChangePacket;
 import examples.simplemovement.netcode.packet.MoverInputPacket;
 import examples.simplemovement.netcode.packet.NewMoverPacket;
 import netcode.Client;
+import netcode.InputUpdateLoop;
 import netcode.packet.ConnectPacket;
 import netcode.packet.DisconnectPacket;
 import netcode.packet.Packet;
@@ -91,6 +92,7 @@ public class MoverClient extends Client{
 		listener = new LagCompensatedInputListener();
 		viewer.addInputListener(listener);
 		new Thread(new GameLoop<MoverPlane>(model, 16)).start();
+		new Thread(new MoverInputUpdate(16, this)).start();
 		controller = new MoverController(model, viewer, myMover, listener);
 		
 		viewer.setVisible(true);
@@ -124,7 +126,6 @@ public class MoverClient extends Client{
 			MoverInput newState = getNewState(e, true);
 			currentState = newState;
 			controller.handleInput(currentState);
-			addMessage(new MoverInputPacket(listener.getState(), (int)id));
 			synchronized(knownInputs){
 				knownInputs.add(currentState);
 			}
@@ -135,7 +136,6 @@ public class MoverClient extends Client{
 			MoverInput newState = getNewState(e, false);
 			currentState = newState;
 			controller.handleInput(currentState);
-			addMessage(new MoverInputPacket(listener.getState(), (int)id));
 			synchronized(knownInputs){
 				knownInputs.add(currentState);
 			}
@@ -144,6 +144,20 @@ public class MoverClient extends Client{
 		public MoverInput getState(){
 			return currentState;
 		}
+	}
+	
+	private class MoverInputUpdate extends InputUpdateLoop{
+
+		public MoverInputUpdate(long milliDelay, Client client) {
+			super(milliDelay, client);
+		}
+
+		@Override
+		protected Packet serializeInput() {
+			return new MoverInputPacket(listener.getState(), (int)id);
+		}
+
+		
 	}
 	
 	class DisconnectListener extends WindowAdapter{

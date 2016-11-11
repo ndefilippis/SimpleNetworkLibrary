@@ -11,6 +11,7 @@ import examples.simplemovement.mvc.MoverState;
 import examples.simplemovement.netcode.packet.BeginConnectionPacket;
 import examples.simplemovement.netcode.packet.MoverInputPacket;
 import examples.simplemovement.netcode.packet.NewMoverPacket;
+import examples.simplemovement.netcode.packet.NewStatePacket;
 import mvc.State;
 import netcode.GameUpdateLoop;
 import netcode.Server;
@@ -90,7 +91,7 @@ public class MoverServer extends Server{
 
 		@Override
 		protected Packet serializeState(MoverState state) {
-			return null;
+			return new NewStatePacket(state);
 		}
 
 

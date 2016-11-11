@@ -86,4 +86,12 @@ public abstract class Packet {
 		byte packetID = (byte) data.get(4);
 		return PacketType.lookupPacket(packetID);
 	}
+
+	public long getTimeSent() {
+		return timeSent;
+	}
+	
+	public long getTimeReceived(){
+		return timeReceived;
+	}
 }

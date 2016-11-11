@@ -39,7 +39,6 @@ public class CounterServer extends Server{
 		super.run();
 	}
 	
-	
 	@Override
 	public void processMessage(ByteBuffer message, SocketAddress address, long timeReceived) {
 		switch(Packet.lookupPacket(message)){

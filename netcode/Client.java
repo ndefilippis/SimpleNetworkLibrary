@@ -17,6 +17,8 @@ public abstract class Client extends RunnableLoop{
 	protected MessageReceiver messageRecvQueue;
 	protected MessageSender messageSendQueue;
 	
+	private static final int CLIENT_DELAY_MILLIS = 500;
+	
 	public Client(String address, int port) throws IOException{
 		channel = DatagramChannel.open();
 		this.serverAddress = new InetSocketAddress(address, port);
@@ -63,7 +65,7 @@ public abstract class Client extends RunnableLoop{
 	}
 	
 	protected void addMessage(Packet packet){
-		messageSendQueue.addMessage(packet, serverAddress, 0);
+		messageSendQueue.addMessage(packet, serverAddress, CLIENT_DELAY_MILLIS);
 	}
 	
 	protected abstract Packet messageToPacket(ByteBuffer message, long timeReceived); 

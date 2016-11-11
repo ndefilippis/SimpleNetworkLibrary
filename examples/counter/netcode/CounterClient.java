@@ -29,6 +29,8 @@ public class CounterClient extends Client{
 	private CounterViewer viewer;
 	private CounterController controller;
 	private Queue<CounterInput> knownInputs = new LinkedList<CounterInput>();
+	private long sendTime = 0;
+	private long delay;
 	
 	private long id;
 	
@@ -39,6 +41,7 @@ public class CounterClient extends Client{
 	@Override
 	public void run(){
 		addMessage(new ConnectPacket());
+		sendTime = System.nanoTime();
 		super.run();
 	}
 
@@ -70,6 +73,7 @@ public class CounterClient extends Client{
 	
 	private void handleConnect(AcceptConnectPacket packet){
 		this.id = packet.getID();
+		this.delay = packet.getTimeReceived() - sendTime;
 	}
 	
 	private void initialize(int value){
@@ -87,7 +91,8 @@ public class CounterClient extends Client{
 			initialize(packet.getValue());
 		}
 		counter.setValue(packet.getValue());
-		while(knownInputs.size() > 0 && knownInputs.peek().getTime() < packet.getUpdateTime()){
+		//why???
+		while(knownInputs.size() > 0 && packet.getUpdateTime() - knownInputs.peek().getTime() > 500000000){
 			knownInputs.poll();
 		}
 		for(CounterInput input : knownInputs){
@@ -122,7 +127,7 @@ public class CounterClient extends Client{
 		@Override
 		public void windowClosing(WindowEvent e) {
 			addMessage(new DisconnectPacket());
-			kill();
+			client.kill();
 			e.getWindow().dispose();
 			System.exit(0);
 		}
