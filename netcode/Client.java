@@ -17,7 +17,7 @@ public abstract class Client extends RunnableLoop{
 	protected MessageReceiver messageRecvQueue;
 	protected MessageSender messageSendQueue;
 	
-	private static final int CLIENT_DELAY_MILLIS = 500;
+	private static final int CLIENT_DELAY_MILLIS = 00;
 	
 	public Client(String address, int port) throws IOException{
 		channel = DatagramChannel.open();

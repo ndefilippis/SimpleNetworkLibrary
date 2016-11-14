@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public abstract class Packet {
+	private static final int PROTOCOL_ID = 0x13371336;
+	
 	protected int packetID;
 	private byte packetTypeID;
 	private long timeReceived, timeSent;
@@ -12,13 +14,6 @@ public abstract class Packet {
 	
 	protected static int remotePacketID;
 	private static int ackBitfield;
-	
-	/* |----| 		packetID		 0	 3
- 	 * |-|			packetTypeID	 4	 4
-	 * |--------|	timeSent		 5	12	
-	 * |----|		remotePacketID	13	16	
-	 * |----|		ackBitfield		17	20
-	 */
 	
 	private static int nextPacketID = 0;
 	
@@ -28,7 +23,6 @@ public abstract class Packet {
 	
 	public Packet(long timeReceived, ByteBuffer data) {
 		this.timeReceived = timeReceived;
-		
 		remotePacketID = data.getInt();
 		packetTypeID = data.get();
 		this.timeReceived = timeReceived;

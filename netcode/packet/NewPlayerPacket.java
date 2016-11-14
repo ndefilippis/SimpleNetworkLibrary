@@ -4,11 +4,11 @@ import java.nio.ByteBuffer;
 
 public class NewPlayerPacket extends Packet {
 
-	private int id;
+	private long id;
 	
 	public NewPlayerPacket(long timeReceived, ByteBuffer data) {
 		super(timeReceived, data);
-		this.id = data.getInt();
+		this.id = data.getLong();
 	}
 	
 	public NewPlayerPacket(int id){
@@ -18,7 +18,7 @@ public class NewPlayerPacket extends Packet {
 
 	@Override
 	protected void encodeData(ByteBuffer buffer) {
-		buffer.putInt(id);
+		buffer.putLong(id);
 	}
 
 }

@@ -15,7 +15,7 @@ public class MoverViewer extends View<MoverState>{
 	public MoverViewer(MoverState state){
 		super(state);
 		frame.setTitle("Simple Mover Example");
-		frame.setResizable(false);
+		//frame.setResizable(false);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setSize(300, 400);
 		frame.getContentPane().setLayout(new BorderLayout());

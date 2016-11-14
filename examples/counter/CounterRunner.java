@@ -5,7 +5,7 @@ import examples.counter.mvc.CounterController;
 import examples.counter.mvc.CounterViewer;
 
 public class CounterRunner {
-	public static void main(String[] args){
+	public static void main(String[] args) {
 		Counter model = new Counter();
 		CounterViewer view = new CounterViewer(model.getState());
 		CounterController controller = new CounterController(model, view);

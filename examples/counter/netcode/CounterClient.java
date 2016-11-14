@@ -92,12 +92,12 @@ public class CounterClient extends Client{
 		}
 		counter.setValue(packet.getValue());
 		//why???
-		while(knownInputs.size() > 0 && packet.getUpdateTime() - knownInputs.peek().getTime() > 500000000){
-			knownInputs.poll();
-		}
-		for(CounterInput input : knownInputs){
-			controller.handleInput(input);
-		}
+		//while(knownInputs.size() > 0 && packet.getUpdateTime() - knownInputs.peek().getTime() > 0){
+		//	knownInputs.poll();
+		//}
+		//for(CounterInput input : knownInputs){
+		//	controller.handleInput(input);
+		//}
 	}
 	
 	class IncrementListener implements ActionListener{

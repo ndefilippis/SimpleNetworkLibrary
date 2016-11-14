@@ -6,26 +6,28 @@ import netcode.packet.Packet;
 import netcode.packet.PacketType;
 
 public class ChangeValuePacket extends Packet{
+	private static int nextPacketID;
 	
 	private int value;
-	private long updateTime;
+	private int id;
 	
-	public ChangeValuePacket(int newValue, long updateTime){
+	
+	public ChangeValuePacket(int newValue){
 		super(PacketType.NEWVALUE);
 		this.value = newValue;
-		this.updateTime = updateTime;
+		this.id = nextPacketID++;
 	}
 
 	public ChangeValuePacket(long timeReceived, ByteBuffer data) {
 		super(timeReceived, data);
 		this.value = data.getInt();
-		this.updateTime = data.getLong();
+		this.id = data.getInt();
 	}
 
 	@Override
 	protected void encodeData(ByteBuffer buffer) {
 		buffer.putInt(value);
-		buffer.putLong(updateTime);
+		buffer.putInt(id);
 	}
 
 	
@@ -33,8 +35,8 @@ public class ChangeValuePacket extends Packet{
 		return value;
 	}
 	
-	public long getUpdateTime(){
-		return updateTime;
+	public long getID(){
+		return id;
 	}
 
 }

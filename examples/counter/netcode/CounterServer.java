@@ -44,14 +44,14 @@ public class CounterServer extends Server{
 		switch(Packet.lookupPacket(message)){
 		case CONNECT:
 			addMessage(new AcceptConnectPacket(nextID++), address);
-			addMessage(new ChangeValuePacket(counter.getValue(), System.nanoTime()), address);
+			addMessage(new ChangeValuePacket(counter.getValue()), address);
 			break;
 		case DISCONNECT:
 			removeClient(address);
 			break;
 		case INPUT:
 			handleInput(new CounterPacket(timeReceived, message));
-			addMessageToAll(new ChangeValuePacket(counter.getValue(), System.nanoTime()));
+			addMessageToAll(new ChangeValuePacket(counter.getValue()));
 			break;
 		default:
 			break;
