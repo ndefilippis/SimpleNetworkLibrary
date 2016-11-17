@@ -7,15 +7,18 @@ import java.nio.channels.DatagramChannel;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import netcode.packet.Acker;
 import threading.RunnableLoop;
 
 public class MessageReceiver extends RunnableLoop{
 	private DatagramChannel channel;
 	private ByteBuffer buf;
+	private Acker acker;
 	private volatile Queue<ReceivedMessage> receivedMessages;
 	
 	public MessageReceiver(DatagramChannel channel){
 		super();
+		this.acker = new Acker();
 		buf = ByteBuffer.allocate(512);
 		this.channel = channel;
 		this.receivedMessages = new ConcurrentLinkedQueue<ReceivedMessage>();
