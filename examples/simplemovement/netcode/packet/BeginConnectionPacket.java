@@ -2,11 +2,9 @@ package examples.simplemovement.netcode.packet;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import examples.simplemovement.mvc.Mover;
-import netcode.ByteBufferConverter;
 import netcode.packet.Packet;
 import netcode.packet.PacketType;
 
@@ -25,8 +23,8 @@ public class BeginConnectionPacket extends Packet{
 		this.clientID = data.getInt();
 	}
 	
-	public BeginConnectionPacket(List<Mover> movers, long clientID){
-		super(PacketType.ACCEPTCONNECT);
+	BeginConnectionPacket(List<Mover> movers, long clientID, MoverServerPacketFactory factory){
+		super(PacketType.ACCEPTCONNECT, factory);
 		this.movers = movers;
 		this.clientID = (int)clientID;
 	}

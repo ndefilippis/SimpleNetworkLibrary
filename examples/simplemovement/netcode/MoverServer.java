@@ -8,11 +8,8 @@ import examples.simplemovement.mvc.Mover;
 import examples.simplemovement.mvc.MoverInput;
 import examples.simplemovement.mvc.MoverPlane;
 import examples.simplemovement.mvc.MoverState;
-import examples.simplemovement.netcode.packet.BeginConnectionPacket;
 import examples.simplemovement.netcode.packet.MoverInputPacket;
-import examples.simplemovement.netcode.packet.NewMoverPacket;
-import examples.simplemovement.netcode.packet.NewStatePacket;
-import mvc.State;
+import examples.simplemovement.netcode.packet.MoverServerPacketFactory;
 import netcode.GameUpdateLoop;
 import netcode.Server;
 import netcode.packet.Packet;
@@ -20,13 +17,14 @@ import threading.GameLoop;
 
 public class MoverServer extends Server{
 	private MoverPlane model;
+	private MoverServerPacketFactory factory;
 
 	private int nextID = 0;
-	private long time;
 	
 	public MoverServer(int port) throws IOException{
 		super(port);
 		this.model = new MoverPlane();
+		this.factory = new MoverServerPacketFactory(acker);
 	}
 	
 	@Override
@@ -41,8 +39,8 @@ public class MoverServer extends Server{
 		case CONNECT:
 			Mover m = new Mover(nextID++, (int)(100 * Math.random()), (int)(-100 * Math.random()));
 			model.addMover(m);
-			addMessageToAll(new NewMoverPacket(m));
-			addMessage(new BeginConnectionPacket(model.getMovers(), m.getID()), address);
+			addMessageToAll(factory.createNewMoverPacket(m));
+			addMessage(factory.createBeginConnectionPacket(model.getMovers(), m.getID()), address);
 			break;
 		case DISCONNECT:
 			removeClient(address);
@@ -91,7 +89,7 @@ public class MoverServer extends Server{
 
 		@Override
 		protected Packet serializeState(MoverState state) {
-			return new NewStatePacket(state);
+			return factory.createNewStatePacket(state);
 		}
 
 

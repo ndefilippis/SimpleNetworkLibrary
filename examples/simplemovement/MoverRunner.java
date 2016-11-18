@@ -13,6 +13,7 @@ public class MoverRunner {
 		model.addMover(myMover);
 		
 		MoverViewer view = new MoverViewer(model.getState());
+		@SuppressWarnings("unused")
 		MoverController controller = new MoverController(model, view, myMover);
 		view.setVisible(true);
 		GameLoop<MoverPlane> loop = new GameLoop<MoverPlane>(model, 16);

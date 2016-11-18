@@ -1,27 +1,21 @@
 package examples.counter.netcode;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
-import java.nio.channels.DatagramChannel;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Queue;
-import java.util.Set;
 
 import examples.counter.mvc.Counter;
 import examples.counter.mvc.ServerCounterViewer;
-import examples.counter.netcode.packet.ChangeValuePacket;
 import examples.counter.netcode.packet.CounterPacket;
+import examples.counter.netcode.packet.CounterServerPacketFactory;
 import netcode.Server;
-import netcode.packet.AcceptConnectPacket;
+import netcode.packet.Acker;
 import netcode.packet.Packet;
 
 public class CounterServer extends Server{
 	private Counter counter;
+	
+	private CounterServerPacketFactory factory;
 	private ServerCounterViewer view;
 	
 	private long nextID = 0L;
@@ -29,6 +23,8 @@ public class CounterServer extends Server{
 	public CounterServer(int port) throws IOException{
 		super(port);
 		this.counter = new Counter();
+		this.acker = new Acker();
+		this.factory = new CounterServerPacketFactory(this.acker);
 		view = new ServerCounterViewer(counter.getValue());
 		counter.addObserver(view);
 	}
@@ -43,15 +39,15 @@ public class CounterServer extends Server{
 	public void processMessage(ByteBuffer message, SocketAddress address, long timeReceived) {
 		switch(Packet.lookupPacket(message)){
 		case CONNECT:
-			addMessage(new AcceptConnectPacket(nextID++), address);
-			addMessage(new ChangeValuePacket(counter.getValue()), address);
+			addMessage(factory.createAcceptConnectPacket(nextID++), address);
+			addMessage(factory.createChangeValuePacket(counter.getValue()), address);
 			break;
 		case DISCONNECT:
 			removeClient(address);
 			break;
 		case INPUT:
 			handleInput(new CounterPacket(timeReceived, message));
-			addMessageToAll(new ChangeValuePacket(counter.getValue()));
+			addMessageToAll(factory.createChangeValuePacket(counter.getValue()));
 			break;
 		default:
 			break;

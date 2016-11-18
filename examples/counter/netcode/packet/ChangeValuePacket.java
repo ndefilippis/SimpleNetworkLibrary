@@ -12,8 +12,8 @@ public class ChangeValuePacket extends Packet{
 	private int id;
 	
 	
-	public ChangeValuePacket(int newValue){
-		super(PacketType.NEWVALUE);
+	public ChangeValuePacket(int newValue, CounterServerPacketFactory factory){
+		super(PacketType.NEWVALUE, factory);
 		this.value = newValue;
 		this.id = nextPacketID++;
 	}

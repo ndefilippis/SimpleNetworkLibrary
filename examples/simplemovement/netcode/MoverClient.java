@@ -17,12 +17,10 @@ import examples.simplemovement.mvc.MoverPlane;
 import examples.simplemovement.mvc.MoverViewer;
 import examples.simplemovement.netcode.packet.BeginConnectionPacket;
 import examples.simplemovement.netcode.packet.MoverChangePacket;
-import examples.simplemovement.netcode.packet.MoverInputPacket;
+import examples.simplemovement.netcode.packet.MoverClientPacketFactory;
 import examples.simplemovement.netcode.packet.NewMoverPacket;
 import netcode.Client;
 import netcode.InputUpdateLoop;
-import netcode.packet.ConnectPacket;
-import netcode.packet.DisconnectPacket;
 import netcode.packet.Packet;
 import threading.GameLoop;
 
@@ -32,6 +30,7 @@ public class MoverClient extends Client{
 	private MoverViewer viewer;
 	private MoverController controller;
 	private InputListener listener;
+	private MoverClientPacketFactory factory;
 	
 	private volatile Queue<MoverInput> knownInputs = new LinkedList<MoverInput>();
 	
@@ -39,12 +38,14 @@ public class MoverClient extends Client{
 	
 	public MoverClient(String address, int port) throws IOException{
 		super(address, port);
+		this.factory = new MoverClientPacketFactory(this.acker);
+		
 	}
 	
 	
 	@Override
 	public void run(){
-		addMessage(new ConnectPacket());
+		addMessage(factory.createConnectPacket());
 		super.run();
 	}
 	
@@ -154,7 +155,7 @@ public class MoverClient extends Client{
 
 		@Override
 		protected Packet serializeInput() {
-			return new MoverInputPacket(listener.getState(), (int)id);
+			return factory.createMoverInputPacket(listener.getState(), (int)id);
 		}
 
 		
@@ -168,7 +169,7 @@ public class MoverClient extends Client{
 		
 		@Override
 		public void windowClosing(WindowEvent e) {
-			client.addMessage(new DisconnectPacket());
+			client.addMessage(factory.createDisconnectPacket());
 			kill();
 			e.getWindow().dispose();
 		}

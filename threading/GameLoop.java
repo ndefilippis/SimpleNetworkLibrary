@@ -1,9 +1,8 @@
 package threading;
 
-import examples.simplemovement.mvc.MoverPlane;
 import mvc.TimedModel;
 
-public class GameLoop<M extends TimedModel> extends TimedRunnableLoop{
+public class GameLoop<M extends TimedModel<?>> extends TimedRunnableLoop{
 	private M model;
 	
 	public GameLoop(M model, long milliTickRate){

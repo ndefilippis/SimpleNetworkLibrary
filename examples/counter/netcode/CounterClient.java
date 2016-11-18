@@ -5,10 +5,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 import java.nio.ByteBuffer;
-import java.nio.channels.DatagramChannel;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -17,30 +14,33 @@ import examples.counter.mvc.CounterController;
 import examples.counter.mvc.CounterInput;
 import examples.counter.mvc.CounterViewer;
 import examples.counter.netcode.packet.ChangeValuePacket;
-import examples.counter.netcode.packet.CounterPacket;
+import examples.counter.netcode.packet.CounterClientPacketFactory;
 import netcode.Client;
 import netcode.packet.AcceptConnectPacket;
-import netcode.packet.ConnectPacket;
-import netcode.packet.DisconnectPacket;
 import netcode.packet.Packet;
 
 public class CounterClient extends Client{
 	private Counter counter;
 	private CounterViewer viewer;
+	@SuppressWarnings("unused")
 	private CounterController controller;
+	private CounterClientPacketFactory factory;
 	private Queue<CounterInput> knownInputs = new LinkedList<CounterInput>();
 	private long sendTime = 0;
+	@SuppressWarnings("unused")
 	private long delay;
 	
+	@SuppressWarnings("unused")
 	private long id;
 	
 	public CounterClient(String address, int port) throws IOException{
 		super(address, port);
+		this.factory = new CounterClientPacketFactory(this.acker);
 	}
 	
 	@Override
 	public void run(){
-		addMessage(new ConnectPacket());
+		addMessage(factory.createConnectPacket());
 		sendTime = System.nanoTime();
 		super.run();
 	}
@@ -104,7 +104,7 @@ public class CounterClient extends Client{
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			CounterInput input = new CounterInput(true);
-			addMessage(new CounterPacket(input));
+			addMessage(factory.createCounterPacket(input));
 			knownInputs.offer(input);
 		}
 		
@@ -114,7 +114,7 @@ public class CounterClient extends Client{
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			CounterInput input = new CounterInput(false);
-			addMessage(new CounterPacket(input));
+			addMessage(factory.createCounterPacket(input));
 			knownInputs.offer(input);
 		}
 	}
@@ -126,7 +126,7 @@ public class CounterClient extends Client{
 		
 		@Override
 		public void windowClosing(WindowEvent e) {
-			addMessage(new DisconnectPacket());
+			addMessage(factory.createDisconnectPacket());
 			client.kill();
 			e.getWindow().dispose();
 			System.exit(0);

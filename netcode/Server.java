@@ -9,16 +9,18 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import netcode.packet.Acker;
 import netcode.packet.Packet;
 import threading.RunnableLoop;
 
 public abstract class Server extends RunnableLoop{
 	private DatagramChannel channel;
 	private Map<SocketAddress, Integer> clients;
+	protected Acker acker;
 	private Thread messageSendThread;
 	private Thread messageRecvThread;
 	protected MessageReceiver messageRecvQueue;
-	protected MessageSender messageSendQueue;
+	protected MessageSender messageSendQueue; 
 	protected int port;
 	private int nextID = 0;
 	
@@ -28,6 +30,7 @@ public abstract class Server extends RunnableLoop{
 		channel = DatagramChannel.open();
 		channel.socket().bind(new InetSocketAddress(port));
 		channel.configureBlocking(false);
+		this.acker = new Acker();
 		messageSendQueue = new MessageSender(channel);
 		messageSendThread = new Thread(messageSendQueue);
 		messageRecvQueue = new MessageReceiver(channel);

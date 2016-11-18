@@ -8,8 +8,8 @@ public class DisconnectPacket extends Packet{
 		super(timeReceived, data);
 	}
 	
-	public DisconnectPacket(){
-		super(PacketType.DISCONNECT);
+	public DisconnectPacket(PacketFactory factory){
+		super(PacketType.DISCONNECT, factory);
 	}
 
 	@Override

@@ -16,8 +16,8 @@ public class CounterPacket extends Packet{
 		this.input = new CounterInput(counterData[0] == 1 ? true : false);
 	}
 	
-	public CounterPacket(CounterInput input){
-		super(PacketType.INPUT);
+	CounterPacket(CounterInput input, CounterClientPacketFactory factory){
+		super(PacketType.INPUT, factory);
 		this.input = input;
 	}
 

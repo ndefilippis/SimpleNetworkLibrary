@@ -21,8 +21,8 @@ public class MoverChangePacket extends Packet {
 		this.updateTime = data.getLong();
 	}
 	
-	public MoverChangePacket(Mover m, long updateTime){
-		super(PacketType.NEWVALUE);
+	MoverChangePacket(Mover m, long updateTime, MoverServerPacketFactory factory){
+		super(PacketType.NEWVALUE, factory);
 		this.moverID = m.getID();
 		this.newX = m.getX();
 		this.newY = m.getY();

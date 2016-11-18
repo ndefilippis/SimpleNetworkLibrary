@@ -3,7 +3,6 @@ package examples.simplemovement.netcode.packet;
 import java.nio.ByteBuffer;
 
 import examples.simplemovement.mvc.MoverState;
-import netcode.ByteBufferConverter;
 import netcode.packet.Packet;
 import netcode.packet.PacketType;
 
@@ -14,8 +13,8 @@ public class NewStatePacket extends Packet {
 		super(timeReceived, data);
 	}
 	
-	public NewStatePacket(MoverState state){
-		super(PacketType.NEWVALUE);
+	public NewStatePacket(MoverState state, MoverServerPacketFactory factory){
+		super(PacketType.NEWVALUE, factory);
 		this.state = state;
 	}
 

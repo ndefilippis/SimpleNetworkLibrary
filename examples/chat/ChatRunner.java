@@ -10,6 +10,7 @@ public class ChatRunner {
 		ChatModel model = new ChatModel();
 		ChatWindow window = new ChatWindow(model.getState());
 		Chatter me = new Chatter("Nick");
+		@SuppressWarnings("unused")
 		ChatController controller = new ChatController(model, window, me);
 		window.setVisible(true);
 		

@@ -15,8 +15,8 @@ public class NewMoverPacket extends Packet {
 		this.m = new Mover(data);
 	}
 	
-	public NewMoverPacket(Mover m){
-		super(PacketType.NEWPLAYER);
+	public NewMoverPacket(Mover m, MoverServerPacketFactory factory){
+		super(PacketType.NEWPLAYER, factory);
 		this.m = m;
 	}
 	

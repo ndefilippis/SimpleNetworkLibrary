@@ -13,10 +13,11 @@ public abstract class View<S extends State> implements Observer{
 	
 	protected abstract void update(S state);
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public void update(Observable o, Object arg){
-		if(o instanceof Model){
-			this.state = (S)((Model) o).getState();
+		if(o instanceof Model<?>){
+			this.state = (S)((Model<S>) o).getState();
 			update(this.state);
 		}
 	}

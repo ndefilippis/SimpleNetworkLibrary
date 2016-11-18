@@ -6,8 +6,8 @@ public class AcceptConnectPacket extends Packet{
 
 	private long id;
 
-	public AcceptConnectPacket(long id){
-		super(PacketType.ACCEPTCONNECT);
+	public AcceptConnectPacket(long id, PacketFactory factory){
+		super(PacketType.ACCEPTCONNECT, factory);
 		this.id = id;
 	}
 	public AcceptConnectPacket(long timeReceived, ByteBuffer data) {

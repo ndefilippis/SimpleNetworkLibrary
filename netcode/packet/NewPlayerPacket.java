@@ -11,8 +11,8 @@ public class NewPlayerPacket extends Packet {
 		this.id = data.getLong();
 	}
 	
-	public NewPlayerPacket(int id){
-		super(PacketType.NEWPLAYER);
+	public NewPlayerPacket(int id, PacketFactory factory){
+		super(PacketType.NEWPLAYER, factory);
 		this.id = id;
 	}
 

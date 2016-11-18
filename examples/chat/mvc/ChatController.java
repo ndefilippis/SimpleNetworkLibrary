@@ -3,8 +3,6 @@ package examples.chat.mvc;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import javax.swing.JTextArea;
-
 import mvc.Controller;
 
 public class ChatController extends Controller<ChatModel, ChatWindow, ChatInput>{

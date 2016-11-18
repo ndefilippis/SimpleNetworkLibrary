@@ -11,7 +11,6 @@ import netcode.packet.Packet;
 import threading.RunnableLoop;
 
 public class MessageSender extends RunnableLoop{
-	private int nextPacketID = 0;
 	private Queue<Message> messagesToSend;
 	private ByteBuffer buf;
 	private DatagramChannel channel;
@@ -28,11 +27,6 @@ public class MessageSender extends RunnableLoop{
 			messagesToSend.offer(new Message(p, address, delay));
 		}
 	}
-	
-	private int getNextPacketID(){
-		return nextPacketID++;
-	}
-	
 	@Override
 	protected void update() {
 		long time = System.nanoTime();
@@ -47,7 +41,7 @@ public class MessageSender extends RunnableLoop{
 	private void sendMessage(Packet packet, SocketAddress address){
 		try {
 			buf.clear();
-			packet.toByteBuffer(getNextPacketID(), buf, System.nanoTime());
+			packet.toByteBuffer(buf, System.nanoTime());
 			buf.flip();
 			channel.send(buf, address);
 		} catch (IOException e) {

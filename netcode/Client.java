@@ -6,12 +6,14 @@ import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 
+import netcode.packet.Acker;
 import netcode.packet.Packet;
 import threading.RunnableLoop;
 
 public abstract class Client extends RunnableLoop{
 	private DatagramChannel channel;
 	private SocketAddress serverAddress;
+	protected Acker acker;
 	private Thread messageSendThread;
 	private Thread messageRecvThread;
 	protected MessageReceiver messageRecvQueue;
@@ -24,6 +26,7 @@ public abstract class Client extends RunnableLoop{
 		this.serverAddress = new InetSocketAddress(address, port);
 		channel.connect(serverAddress);
 		channel.configureBlocking(false);
+		this.acker = new Acker();
 		messageSendQueue = new MessageSender(channel);
 		messageSendThread = new Thread(messageSendQueue);
 		messageRecvQueue = new MessageReceiver(channel);
@@ -60,6 +63,7 @@ public abstract class Client extends RunnableLoop{
 		if(messageRecvQueue.hasMessages()){
 			ReceivedMessage latest = messageRecvQueue.getLatestData();
 			Packet packet = messageToPacket(latest.getData(), latest.getTimeReceived());
+			acker.updateAckBitfield(packet.getPacketID());
 			handlePacket(packet);
 		}
 	}

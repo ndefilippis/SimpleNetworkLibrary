@@ -22,8 +22,8 @@ public class MoverInputPacket extends Packet {
 		this.moverID = data.getInt();
 	}
 	
-	public MoverInputPacket(MoverInput input, int id){
-		super(PacketType.NEWVALUE);
+	public MoverInputPacket(MoverInput input, int id, MoverClientPacketFactory factory){
+		super(PacketType.NEWVALUE, factory);
 		this.input = input;
 		this.moverID = id;
 	}

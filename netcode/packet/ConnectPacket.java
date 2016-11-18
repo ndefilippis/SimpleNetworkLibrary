@@ -8,8 +8,8 @@ public class ConnectPacket extends Packet{
 		super(timeReceived, data);
 	}
 
-	public ConnectPacket() {
-		super(PacketType.CONNECT);
+	public ConnectPacket(PacketFactory factory) {
+		super(PacketType.CONNECT, factory);
 	}
 
 	@Override
