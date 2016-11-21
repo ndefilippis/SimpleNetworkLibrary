@@ -10,21 +10,20 @@ import examples.simplemovement.mvc.MoverPlane;
 import examples.simplemovement.mvc.MoverState;
 import examples.simplemovement.netcode.packet.MoverInputPacket;
 import examples.simplemovement.netcode.packet.MoverServerPacketFactory;
+import examples.simplemovement.netcode.packet.NewMoverPacket;
 import netcode.GameUpdateLoop;
 import netcode.Server;
 import netcode.packet.Packet;
 import threading.GameLoop;
 
-public class MoverServer extends Server{
+public class MoverServer extends Server<MoverServerPacketFactory, MoverHandler>{
 	private MoverPlane model;
-	private MoverServerPacketFactory factory;
 
 	private int nextID = 0;
 	
 	public MoverServer(int port) throws IOException{
 		super(port);
 		this.model = new MoverPlane();
-		this.factory = new MoverServerPacketFactory(acker);
 	}
 	
 	@Override
@@ -34,13 +33,9 @@ public class MoverServer extends Server{
 		super.run();
 	}
 	
-	public void processMessage(ByteBuffer message, SocketAddress address, long timeReceived){
+	public void processMessage(ByteBuffer message, SocketAddress address, long timeReceived, MoverServerPacketFactory factory){
 		switch(Packet.lookupPacket(message)){
 		case CONNECT:
-			Mover m = new Mover(nextID++, (int)(100 * Math.random()), (int)(-100 * Math.random()));
-			model.addMover(m);
-			addMessageToAll(factory.createNewMoverPacket(m));
-			addMessage(factory.createBeginConnectionPacket(model.getMovers(), m.getID()), address);
 			break;
 		case DISCONNECT:
 			removeClient(address);
@@ -83,16 +78,22 @@ public class MoverServer extends Server{
 
 	private class MoverUpdateLoop extends GameUpdateLoop<MoverPlane, MoverState>{
 
-		public MoverUpdateLoop(long milliDelay, Server server, MoverPlane model) {
-			super(milliDelay, server, model);
+		public MoverUpdateLoop(long milliDelay, Server<?,?> server, MoverPlane model) {
+			super(milliDelay, server, model, NewMoverPacket.class);
 		}
-
-		@Override
-		protected Packet serializeState(MoverState state) {
-			return factory.createNewStatePacket(state);
-		}
-
-
 		
+	}
+
+	@Override
+	protected MoverHandler createNewHandler(SocketAddress address, int id) {
+		return new MoverHandler(address, id);
+	}
+
+	@Override
+	protected void beforeAddClient(SocketAddress address, MoverServerPacketFactory factory) {
+		Mover m = new Mover(nextID++, (int)(100 * Math.random()), (int)(-100 * Math.random()));
+		model.addMover(m);
+		addMessageToAll(NewMoverPacket.class, m);
+		addMessage(factory.createBeginConnectionPacket(model.getMovers(), m.getID()), address);
 	}
 }

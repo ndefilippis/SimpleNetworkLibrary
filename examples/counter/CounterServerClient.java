@@ -11,10 +11,5 @@ public class CounterServerClient {
 		new Thread(server).start();
 		CounterClient client = new CounterClient("localhost", 1337);
 		new Thread(client).start();
-		client = new CounterClient("localhost", 1337);
-		new Thread(client).start();
-		Thread.sleep(100);
-		client = new CounterClient("localhost", 1337);
-		new Thread(client).start();
 	}
 }

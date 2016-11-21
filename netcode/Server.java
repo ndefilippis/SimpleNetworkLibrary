@@ -9,14 +9,13 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import netcode.packet.Acker;
 import netcode.packet.Packet;
+import netcode.packet.ServerPacketFactory;
 import threading.RunnableLoop;
 
-public abstract class Server extends RunnableLoop{
+public abstract class Server<F extends ServerPacketFactory, H extends Handler<F>> extends RunnableLoop{
 	private DatagramChannel channel;
-	private Map<SocketAddress, Integer> clients;
-	protected Acker acker;
+	private Map<SocketAddress, H> clients;
 	private Thread messageSendThread;
 	private Thread messageRecvThread;
 	protected MessageReceiver messageRecvQueue;
@@ -30,12 +29,11 @@ public abstract class Server extends RunnableLoop{
 		channel = DatagramChannel.open();
 		channel.socket().bind(new InetSocketAddress(port));
 		channel.configureBlocking(false);
-		this.acker = new Acker();
 		messageSendQueue = new MessageSender(channel);
 		messageSendThread = new Thread(messageSendQueue);
 		messageRecvQueue = new MessageReceiver(channel);
 		messageRecvThread = new Thread(messageRecvQueue);	
-		clients = new HashMap<SocketAddress, Integer>();
+		clients = new HashMap<SocketAddress, H>();
 	}
 	
 	@Override
@@ -45,9 +43,15 @@ public abstract class Server extends RunnableLoop{
 		super.run();
 	}
 	
+	protected abstract void beforeAddClient(SocketAddress address, F factory);
+	
 	protected void addClient(SocketAddress address){
-		clients.put(address, nextID++);
+		H handler = createNewHandler(address, nextID++);
+		beforeAddClient(address, handler.getPacketFactory());
+		clients.put(address, handler);
 	}
+	
+	protected abstract H createNewHandler(SocketAddress address, int id);
 	
 	protected void removeClient(SocketAddress address){
 		clients.remove(address);
@@ -76,8 +80,9 @@ public abstract class Server extends RunnableLoop{
 		messageSendQueue.addMessage(packet, address, MILLIS_DELAY);
 	}
 
-	protected void addMessageToAll(Packet packet) {
+	protected <E extends Packet> void addMessageToAll(Class<E> packetType, Object... params) {
 		for(SocketAddress addr : getClients()){
+			Packet packet = clients.get(addr).getPacketFactory().createPacket(packetType, params);
 			messageSendQueue.addMessage(packet, addr, MILLIS_DELAY);
 		}
 	}
@@ -86,14 +91,17 @@ public abstract class Server extends RunnableLoop{
 	protected void update(){
 		if(messageRecvQueue.hasMessages()){
 			ReceivedMessage message = messageRecvQueue.getLatestData();
-			processMessage(message.getData(), message.getSender(), message.getTimeReceived());
-			if(!clients.containsKey(message.getSender())){
+			if(clients.containsKey(message.getSender())){
+				processMessage(message.getData(), message.getSender(), message.getTimeReceived(), clients.get(message.getSender()));
+			}
+			else{
 				addClient(message.getSender());
 			}
+			
 		}
 	}
 	
-	public abstract void processMessage(ByteBuffer message, SocketAddress address, long timeReceived);
+	public abstract void processMessage(ByteBuffer message, SocketAddress address, long timeReceived, H handler);
 	
 	public Collection<SocketAddress> getClients(){
 		return clients.keySet();

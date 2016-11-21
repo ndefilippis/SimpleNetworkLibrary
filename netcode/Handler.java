@@ -3,28 +3,24 @@ package netcode;
 import java.net.SocketAddress;
 
 import netcode.packet.Acker;
-import threading.RunnableLoop;
+import netcode.packet.ServerPacketFactory;
 
-public abstract class Handler extends RunnableLoop{
+public abstract class Handler<F extends ServerPacketFactory>{
 	protected Acker acker;
+	protected int id;
 	protected SocketAddress clientAddress;
+	private F factory;
 	
-	public Handler(SocketAddress address, Server server){
+	public Handler(SocketAddress address, int id){
 		this.acker = new Acker();
+		this.id = id;
 		this.clientAddress = address;
+		this.factory = createPacketFactory(acker);
 	}
 	
-	@Override
-	protected abstract void update();
+	protected abstract F createPacketFactory(Acker acker);
 	
-	class Client{
-		public final int id;
-		public final SocketAddress address;
-		
-		public Client(int id, SocketAddress address){
-			this.id = id;
-			this.address = address;
-		}
+	public final F getPacketFactory(){
+		return factory;
 	}
-
 }

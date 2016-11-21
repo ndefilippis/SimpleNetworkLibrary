@@ -6,16 +6,14 @@ import java.nio.ByteBuffer;
 
 import examples.counter.mvc.Counter;
 import examples.counter.mvc.ServerCounterViewer;
+import examples.counter.netcode.packet.ChangeValuePacket;
 import examples.counter.netcode.packet.CounterPacket;
 import examples.counter.netcode.packet.CounterServerPacketFactory;
 import netcode.Server;
-import netcode.packet.Acker;
 import netcode.packet.Packet;
 
-public class CounterServer extends Server{
+public class CounterServer extends Server<CounterServerPacketFactory, CounterHandler>{
 	private Counter counter;
-	
-	private CounterServerPacketFactory factory;
 	private ServerCounterViewer view;
 	
 	private long nextID = 0L;
@@ -23,8 +21,7 @@ public class CounterServer extends Server{
 	public CounterServer(int port) throws IOException{
 		super(port);
 		this.counter = new Counter();
-		this.acker = new Acker();
-		this.factory = new CounterServerPacketFactory(this.acker);
+		
 		view = new ServerCounterViewer(counter.getValue());
 		counter.addObserver(view);
 	}
@@ -36,18 +33,16 @@ public class CounterServer extends Server{
 	}
 	
 	@Override
-	public void processMessage(ByteBuffer message, SocketAddress address, long timeReceived) {
+	public void processMessage(ByteBuffer message, SocketAddress address, long timeReceived, CounterServerPacketFactory factory) {
 		switch(Packet.lookupPacket(message)){
 		case CONNECT:
-			addMessage(factory.createAcceptConnectPacket(nextID++), address);
-			addMessage(factory.createChangeValuePacket(counter.getValue()), address);
 			break;
 		case DISCONNECT:
 			removeClient(address);
 			break;
 		case INPUT:
 			handleInput(new CounterPacket(timeReceived, message));
-			addMessageToAll(factory.createChangeValuePacket(counter.getValue()));
+			addMessageToAll(ChangeValuePacket.class, counter.getValue());
 			break;
 		default:
 			break;
@@ -61,5 +56,16 @@ public class CounterServer extends Server{
 		else{
 			counter.decrementValue();
 		}
+	}
+
+	@Override
+	protected CounterHandler createNewHandler(SocketAddress address, int id) {
+		return new CounterHandler(address, id);
+	}
+
+	@Override
+	protected void beforeAddClient(SocketAddress address, CounterServerPacketFactory factory) {
+		addMessage(factory.createAcceptConnectPacket(nextID++), address);
+		addMessage(factory.createChangeValuePacket(counter.getValue()), address);
 	}
 }
