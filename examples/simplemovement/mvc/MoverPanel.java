@@ -12,7 +12,6 @@ public class MoverPanel extends JPanel{
 	
 	private List<Mover> moversToDraw;
 	
-	
 	@Override
 	public void paintComponent(Graphics g){
 		super.paintComponent(g);

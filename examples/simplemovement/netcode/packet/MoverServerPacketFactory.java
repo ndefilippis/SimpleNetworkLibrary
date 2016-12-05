@@ -9,7 +9,8 @@ import netcode.packet.Packet;
 import netcode.packet.ServerPacketFactory;
 
 public class MoverServerPacketFactory extends ServerPacketFactory{
-
+	private int inputID;
+	
 	public MoverServerPacketFactory(Acker acker) {
 		super(acker);
 	}
@@ -24,20 +25,16 @@ public class MoverServerPacketFactory extends ServerPacketFactory{
 	
 	
 	public NewStatePacket createNewStatePacket(MoverState state){
-		return new NewStatePacket(state, this);
+		return new NewStatePacket(state, inputID++, this);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public Packet createPacketFromData(Class<?> packetType, Object[] params) {
-		if(packetType == BeginConnectionPacket.class){
-			return createBeginConnectionPacket((List<Mover>)params[0], (int)params[1]);
+	public Packet createPacket(Packet p) {
+		if(p instanceof NewStatePacket){
+			return new NewStatePacket((NewStatePacket)p, inputID++, this);
 		}
-		if(packetType == NewMoverPacket.class){
-			return createNewMoverPacket((Mover)params[0]);
-		}
-		if(packetType == NewStatePacket.class){
-			return createNewStatePacket((MoverState)params[0]);
+		if(p instanceof NewMoverPacket){
+			return new NewMoverPacket((NewMoverPacket)p, this);
 		}
 		return null;
 	}

@@ -11,6 +11,7 @@ import examples.simplemovement.mvc.MoverState;
 import examples.simplemovement.netcode.packet.MoverInputPacket;
 import examples.simplemovement.netcode.packet.MoverServerPacketFactory;
 import examples.simplemovement.netcode.packet.NewMoverPacket;
+import examples.simplemovement.netcode.packet.NewStatePacket;
 import netcode.GameUpdateLoop;
 import netcode.Server;
 import netcode.packet.Packet;
@@ -29,11 +30,11 @@ public class MoverServer extends Server<MoverServerPacketFactory, MoverHandler>{
 	@Override
 	public void run(){
 		new Thread(new GameLoop<MoverPlane>(model, 16)).start();
-		new Thread(new MoverUpdateLoop(50L, this, model));
+		new Thread(new MoverUpdateLoop(50L));
 		super.run();
 	}
 	
-	public void processMessage(ByteBuffer message, SocketAddress address, long timeReceived, MoverServerPacketFactory factory){
+	public void processMessage(ByteBuffer message, SocketAddress address, long timeReceived, MoverHandler handler){
 		switch(Packet.lookupPacket(message)){
 		case CONNECT:
 			break;
@@ -75,13 +76,17 @@ public class MoverServer extends Server<MoverServerPacketFactory, MoverHandler>{
 		}
 		mover.setSpeed(dx, dy);
 	}
+	
+	private class MoverUpdateLoop extends GameUpdateLoop{
 
-	private class MoverUpdateLoop extends GameUpdateLoop<MoverPlane, MoverState>{
-
-		public MoverUpdateLoop(long milliDelay, Server<?,?> server, MoverPlane model) {
-			super(milliDelay, server, model, NewMoverPacket.class);
+		public MoverUpdateLoop(long milliDelay) {
+			super(milliDelay);
 		}
-		
+
+		@Override
+		protected void onUpdate() {
+			addMessageToAll(NewStatePacket.createDefaultPacket(model.getState()));
+		}		
 	}
 
 	@Override
@@ -93,7 +98,7 @@ public class MoverServer extends Server<MoverServerPacketFactory, MoverHandler>{
 	protected void beforeAddClient(SocketAddress address, MoverServerPacketFactory factory) {
 		Mover m = new Mover(nextID++, (int)(100 * Math.random()), (int)(-100 * Math.random()));
 		model.addMover(m);
-		addMessageToAll(NewMoverPacket.class, m);
+		addMessageToAll(NewMoverPacket.createDefaultPacket(m));
 		addMessage(factory.createBeginConnectionPacket(model.getMovers(), m.getID()), address);
 	}
 }

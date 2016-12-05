@@ -8,7 +8,7 @@ public class MoverInput extends Input{
 	public boolean up;
 	public boolean down;
 	private double dt;
-	private long time;
+	private int id;
 	
 	public MoverInput(boolean left, boolean right, boolean up, boolean down, double dt){
 		super();
@@ -19,17 +19,21 @@ public class MoverInput extends Input{
 		this.dt = dt;
 	}
 	
-	public MoverInput(MoverInput other){
+	public MoverInput(MoverInput other, int id){
 		super();
 		this.left = other.left;
 		this.right = other.right;
 		this.down = other.down;
 		this.up = other.up;
-		this.dt = (this.time - other.time)/1000000000D;
+		this.id = id;
 	}
 	
 	public double getDt(){
 		return dt;
+	}
+	
+	public int getID(){
+		return id;
 	}
 	
 	

@@ -6,12 +6,12 @@ import examples.simplemovement.mvc.Mover;
 import netcode.packet.Packet;
 import netcode.packet.PacketType;
 
-public class MoverChangePacket extends Packet {
+public class MoverChangePacket2 extends Packet {
 	private int moverID;
 	private int newX, newY;
 	private long updateTime;
 	
-	public MoverChangePacket(long timeReceived, ByteBuffer data) {
+	public MoverChangePacket2(long timeReceived, ByteBuffer data) {
 		super(timeReceived, data);
 		byte[] arr = new byte[data.remaining()];
 		data.get(arr);
@@ -21,7 +21,7 @@ public class MoverChangePacket extends Packet {
 		this.updateTime = data.getLong();
 	}
 	
-	MoverChangePacket(Mover m, long updateTime, MoverServerPacketFactory factory){
+	MoverChangePacket2(Mover m, long updateTime, MoverServerPacketFactory factory){
 		super(PacketType.NEWVALUE, factory);
 		this.moverID = m.getID();
 		this.newX = m.getX();

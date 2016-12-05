@@ -13,11 +13,12 @@ public class CounterServerPacketFactory extends ServerPacketFactory{
 		return new ChangeValuePacket(value, this);
 	}
 	@Override
-	public Packet createPacketFromData(Class<?> packetType, Object[] params) {
-		if(packetType == ChangeValuePacket.class){
-			return createChangeValuePacket((int)params[0]);
+	public Packet createPacket(Packet p) {
+		if(p instanceof ChangeValuePacket){
+			return new ChangeValuePacket((ChangeValuePacket)p, this);
 		}
 		return null;
 	}
+	
 
 }

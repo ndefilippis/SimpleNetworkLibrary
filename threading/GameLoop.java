@@ -9,6 +9,11 @@ public class GameLoop<M extends TimedModel<?>> extends TimedRunnableLoop{
 		super(milliTickRate);
 		this.model = model;
 	}
+	
+	public GameLoop(M model, long milliTickRate, int iterations){
+		super(milliTickRate, iterations);
+		this.model = model;
+	}
 
 	@Override
 	protected void update(double dt) {

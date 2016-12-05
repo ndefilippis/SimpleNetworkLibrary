@@ -80,13 +80,6 @@ public abstract class Server<F extends ServerPacketFactory, H extends Handler<F>
 		messageSendQueue.addMessage(packet, address, MILLIS_DELAY);
 	}
 
-	protected <E extends Packet> void addMessageToAll(Class<E> packetType, Object... params) {
-		for(SocketAddress addr : getClients()){
-			Packet packet = clients.get(addr).getPacketFactory().createPacket(packetType, params);
-			messageSendQueue.addMessage(packet, addr, MILLIS_DELAY);
-		}
-	}
-	
 	@Override
 	protected void update(){
 		if(messageRecvQueue.hasMessages()){
@@ -101,10 +94,21 @@ public abstract class Server<F extends ServerPacketFactory, H extends Handler<F>
 		}
 	}
 	
+	public <E extends Packet> void  addMessageToAll(Packet p){
+		for(SocketAddress address : clients.keySet()){
+			H handler = clients.get(address);
+			Packet handlerCopy = handler.getPacketFactory().createPacket(p);
+			if(handlerCopy == null){
+				throw new IllegalArgumentException("Cannot create add packet of type " + p.getClass() + " to all.");
+			}
+			addMessage(handlerCopy, address);
+		}
+	}
+	
 	public abstract void processMessage(ByteBuffer message, SocketAddress address, long timeReceived, H handler);
 	
-	public Collection<SocketAddress> getClients(){
-		return clients.keySet();
+	public Collection<H> getClients(){
+		return clients.values();
 	}
 	
 	public int getPort(){

@@ -18,6 +18,10 @@ public abstract class Handler<F extends ServerPacketFactory>{
 		this.factory = createPacketFactory(acker);
 	}
 	
+	public SocketAddress getAddress(){
+		return clientAddress;
+	}
+	
 	protected abstract F createPacketFactory(Acker acker);
 	
 	public final F getPacketFactory(){

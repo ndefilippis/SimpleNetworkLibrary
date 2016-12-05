@@ -33,7 +33,7 @@ public class CounterServer extends Server<CounterServerPacketFactory, CounterHan
 	}
 	
 	@Override
-	public void processMessage(ByteBuffer message, SocketAddress address, long timeReceived, CounterServerPacketFactory factory) {
+	public void processMessage(ByteBuffer message, SocketAddress address, long timeReceived, CounterHandler handler) {
 		switch(Packet.lookupPacket(message)){
 		case CONNECT:
 			break;
@@ -42,7 +42,7 @@ public class CounterServer extends Server<CounterServerPacketFactory, CounterHan
 			break;
 		case INPUT:
 			handleInput(new CounterPacket(timeReceived, message));
-			addMessageToAll(ChangeValuePacket.class, counter.getValue());
+			addMessageToAll(ChangeValuePacket.createDefaultChangeValuePacket(counter.getValue()));
 			break;
 		default:
 			break;

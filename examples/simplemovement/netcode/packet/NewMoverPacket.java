@@ -20,6 +20,16 @@ public class NewMoverPacket extends Packet {
 		this.m = m;
 	}
 	
+	private NewMoverPacket(Mover m){
+		super(PacketType.NEWPLAYER);
+		this.m = m;
+	}
+	
+	public NewMoverPacket(NewMoverPacket other,  MoverServerPacketFactory factory){
+		super(other, factory);
+		this.m = other.m;
+	}
+	
 	public Mover getNewMover(){
 		return m;
 	}
@@ -27,6 +37,10 @@ public class NewMoverPacket extends Packet {
 	@Override
 	protected void encodeData(ByteBuffer buffer) {
 		m.serializeWrite(buffer);
+	}
+
+	public static Packet createDefaultPacket(Mover m) {
+		return new NewMoverPacket(m);
 	}
 
 }

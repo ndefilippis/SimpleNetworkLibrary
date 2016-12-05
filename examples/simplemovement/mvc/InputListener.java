@@ -4,6 +4,7 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
 public abstract class InputListener extends KeyAdapter{
+		private int id = 0;
 		protected MoverInput currentState = new MoverInput(false, false, false, false, 0);
 		
 		@Override
@@ -13,7 +14,7 @@ public abstract class InputListener extends KeyAdapter{
 		public abstract void keyReleased(KeyEvent e);
 		
 		protected MoverInput getNewState(KeyEvent e, boolean isPressed){
-			MoverInput newState = new MoverInput(currentState);
+			MoverInput newState = new MoverInput(currentState, id++);
 			switch(e.getKeyCode()){
 				case KeyEvent.VK_W:
 				case KeyEvent.VK_UP:

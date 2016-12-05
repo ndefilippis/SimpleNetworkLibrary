@@ -17,11 +17,27 @@ public class ChangeValuePacket extends Packet{
 		this.value = newValue;
 		this.id = nextPacketID++;
 	}
+	
+	private ChangeValuePacket(int newValue){
+		super(PacketType.NEWVALUE);
+		this.value = newValue;
+	}
 
 	public ChangeValuePacket(long timeReceived, ByteBuffer data) {
 		super(timeReceived, data);
 		this.value = data.getInt();
 		this.id = data.getInt();
+	}
+	
+	public ChangeValuePacket(ChangeValuePacket p, CounterServerPacketFactory factory) {
+		super(p, factory);
+		this.value = p.value;
+		this.id = nextPacketID++;
+		
+	}
+
+	public static ChangeValuePacket createDefaultChangeValuePacket(int newValue){
+		return new ChangeValuePacket(newValue);
 	}
 
 	@Override

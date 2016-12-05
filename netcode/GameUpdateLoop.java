@@ -1,33 +1,27 @@
 package netcode;
 
-import mvc.State;
-import mvc.TimedModel;
-import netcode.packet.Packet;
 import threading.TimedRunnableLoop;
 
-public abstract class GameUpdateLoop<M extends TimedModel<S>, S extends State> extends TimedRunnableLoop{
-	private Server<?,?> server;
-	private Class<? extends Packet> type;
+public abstract class GameUpdateLoop extends TimedRunnableLoop{
 	private long tick;
-	private M model;
 	
-	public GameUpdateLoop(long milliDelay, Server<?,?> server, M model, Class<? extends Packet> packetType) {
-		this(milliDelay, server, model, packetType, 0);
+	public GameUpdateLoop(long milliDelay) {
+		this(milliDelay, 0);
 	}
 	
-	public GameUpdateLoop(long milliDelay, Server<?,?> server, M model, Class<? extends Packet> packetType, long startTick){
+	public GameUpdateLoop(long milliDelay, long startTick){
 		super(milliDelay);
-		this.server = server;
-		this.model = model;
-		this.type = packetType;
 		this.tick = startTick;
 	}
 
 	@Override
 	protected void update(double dt) {
-		server.addMessageToAll(type, model.getState());
+		//server.addMessageToAll(type, model.getState());
 		tick++;
+		onUpdate();
 	}
+	
+	protected abstract void onUpdate();
 	
 	public long getTick(){
 		return tick;

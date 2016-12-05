@@ -16,4 +16,8 @@ public abstract class Model<S extends State> extends Observable{
 	public S getState(){
 		return state;
 	}
+	
+	public void setState(S state){
+		this.state = state;
+	}
 }

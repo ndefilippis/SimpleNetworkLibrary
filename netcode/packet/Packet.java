@@ -11,11 +11,21 @@ public abstract class Packet {
 	
 	private PacketFactory factory;
 	
+	protected Packet(PacketType type){
+		this.packetTypeID = type.getID();
+	}
+	
 	protected Packet(PacketType type, PacketFactory factory){
 		this.factory = factory;
 		this.packetID = factory.getNextID();
 		this.packetTypeID = type.getID();
-	}	
+	}
+	
+	public Packet(Packet other, PacketFactory factory){
+		this.factory = factory;
+		this.packetID = other.packetID;
+		this.packetTypeID = other.packetTypeID;
+	}
 	
 	public Packet(long timeReceived, ByteBuffer data) {
 		this.packetID = data.getInt();

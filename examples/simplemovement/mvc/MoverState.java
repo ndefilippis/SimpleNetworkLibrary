@@ -27,7 +27,7 @@ public class MoverState implements State, Serializable {
 	public void serializeWrite(ByteBuffer buffer) {
 		buffer.putInt(movers.size());
 		for(int i = 0; i < movers.size(); i++){
-			serializeWrite(buffer);
+			movers.get(i).serializeWrite(buffer);
 		}
 	}
 }

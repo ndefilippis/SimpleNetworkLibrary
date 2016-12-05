@@ -16,9 +16,10 @@ import examples.simplemovement.mvc.MoverInput;
 import examples.simplemovement.mvc.MoverPlane;
 import examples.simplemovement.mvc.MoverViewer;
 import examples.simplemovement.netcode.packet.BeginConnectionPacket;
-import examples.simplemovement.netcode.packet.MoverChangePacket;
+import examples.simplemovement.netcode.packet.MoverChangePacket2;
 import examples.simplemovement.netcode.packet.MoverClientPacketFactory;
 import examples.simplemovement.netcode.packet.NewMoverPacket;
+import examples.simplemovement.netcode.packet.NewStatePacket;
 import netcode.Client;
 import netcode.InputUpdateLoop;
 import netcode.packet.Packet;
@@ -55,7 +56,7 @@ public class MoverClient extends Client{
 		case ACCEPTCONNECT:
 			return new BeginConnectionPacket(timeReceived, message);
 		case NEWVALUE:
-			return new MoverChangePacket(timeReceived, message);
+			return new NewStatePacket(timeReceived, message);
 		case NEWPLAYER:
 			return new NewMoverPacket(timeReceived, message);
 		default:
@@ -70,7 +71,7 @@ public class MoverClient extends Client{
 				handleConnect((BeginConnectionPacket)packet);
 				break;
 			case NEWVALUE:
-				handleChangeValue((MoverChangePacket)packet);
+				handleChangeValue((NewStatePacket)packet);
 				break;
 			case NEWPLAYER:
 				handleNewPlayer((NewMoverPacket)packet);
@@ -99,13 +100,9 @@ public class MoverClient extends Client{
 		viewer.setVisible(true);
 	}
 	
-	private void handleChangeValue(MoverChangePacket packet){
-		for(Mover m : model.getMovers()){
-			if(m.getID() == packet.getMoverID()){
-				m.setCoords(packet.getX(), packet.getY());
-			}
-		}
-		while(knownInputs.size() > 0 && knownInputs.peek().getTime() < packet.getUpdateTime()){
+	private void handleChangeValue(NewStatePacket packet){
+		model.setState(packet.getState());
+		while(knownInputs.size() > 0 && knownInputs.peek().getID() < packet.getID()){
 			knownInputs.poll();
 		}
 		synchronized(knownInputs){

@@ -2,10 +2,16 @@ package threading;
 
 public abstract class TimedRunnableLoop extends RunnableLoop{
 	private long milliDelay;
+	private int maxIterations;
 	
 	public TimedRunnableLoop(long milliDelay){
+		this(milliDelay, 0);
+	}
+	
+	public TimedRunnableLoop(long milliDelay, int maxIterations){
 		super();
 		this.milliDelay = milliDelay;
+		this.maxIterations = maxIterations;
 	}
 	
 	@Override
@@ -17,9 +23,11 @@ public abstract class TimedRunnableLoop extends RunnableLoop{
 			currentTime = System.nanoTime();
 			long elapsed = currentTime - previousTime;
 			delta += elapsed;
-			while(delta >= milliDelay * 1000000){
+			int iterations = 0;
+			while(delta >= milliDelay * 1000000 && (maxIterations == 0 || iterations < maxIterations)){
 				update(milliDelay/1000D);
 				delta -= milliDelay * 1000000;
+				iterations++;
 			}
 			previousTime = currentTime;
 		}
