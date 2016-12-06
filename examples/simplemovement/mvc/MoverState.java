@@ -30,4 +30,12 @@ public class MoverState implements State, Serializable {
 			movers.get(i).serializeWrite(buffer);
 		}
 	}
+	
+	public String toString(){
+		StringBuilder sb = new StringBuilder("State: \n");
+		for(Mover m : movers){
+			sb.append(m.toString()+"\n");
+		}
+		return sb.toString();
+	}
 }

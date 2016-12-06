@@ -13,6 +13,7 @@ public class NewStatePacket extends Packet {
 	
 	public NewStatePacket(long timeReceived, ByteBuffer data) {
 		super(timeReceived, data);
+		state = new MoverState();
 		state.serializeRead(data);
 		id = data.getInt();
 	}

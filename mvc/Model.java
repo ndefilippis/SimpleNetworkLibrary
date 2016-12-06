@@ -18,6 +18,8 @@ public abstract class Model<S extends State> extends Observable{
 	}
 	
 	public void setState(S state){
+		this.setChanged();
+		this.notifyObservers();
 		this.state = state;
 	}
 }

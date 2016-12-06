@@ -7,7 +7,6 @@ import java.nio.ByteBuffer;
 import examples.simplemovement.mvc.Mover;
 import examples.simplemovement.mvc.MoverInput;
 import examples.simplemovement.mvc.MoverPlane;
-import examples.simplemovement.mvc.MoverState;
 import examples.simplemovement.netcode.packet.MoverInputPacket;
 import examples.simplemovement.netcode.packet.MoverServerPacketFactory;
 import examples.simplemovement.netcode.packet.NewMoverPacket;
@@ -30,7 +29,7 @@ public class MoverServer extends Server<MoverServerPacketFactory, MoverHandler>{
 	@Override
 	public void run(){
 		new Thread(new GameLoop<MoverPlane>(model, 16)).start();
-		new Thread(new MoverUpdateLoop(50L));
+		new Thread(new MoverUpdateLoop(20L)).start();
 		super.run();
 	}
 	
@@ -42,24 +41,24 @@ public class MoverServer extends Server<MoverServerPacketFactory, MoverHandler>{
 			removeClient(address);
 			break;
 		case NEWVALUE:
-			handleInput(new MoverInputPacket(timeReceived, message), 15/1000D);
+			handleInput(new MoverInputPacket(timeReceived, message));
 			break;
 		default:
 			break;
 		}
 	}
 	
-	private Mover handleInput(MoverInputPacket packet, double dt){
+	private Mover handleInput(MoverInputPacket packet){
 		for(Mover m : model.getMovers()){
 			if(m.getID() == packet.getMoverID()){
-				handleInput(m, packet.getInput(), dt);
+				handleInput(m, packet.getInput());
 				return m;
 			}
 		}
 		return null;
 	}
 	
-	private void handleInput(Mover mover, MoverInput input, double dt){
+	private void handleInput(Mover mover, MoverInput input){
 		int dx = 0;
 		int dy = 0;
 		if(input.left){

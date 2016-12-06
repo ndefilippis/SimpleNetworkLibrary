@@ -16,7 +16,6 @@ import examples.simplemovement.mvc.MoverInput;
 import examples.simplemovement.mvc.MoverPlane;
 import examples.simplemovement.mvc.MoverViewer;
 import examples.simplemovement.netcode.packet.BeginConnectionPacket;
-import examples.simplemovement.netcode.packet.MoverChangePacket2;
 import examples.simplemovement.netcode.packet.MoverClientPacketFactory;
 import examples.simplemovement.netcode.packet.NewMoverPacket;
 import examples.simplemovement.netcode.packet.NewStatePacket;
