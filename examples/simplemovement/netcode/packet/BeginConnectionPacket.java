@@ -10,6 +10,7 @@ import netcode.packet.PacketType;
 
 public class BeginConnectionPacket extends Packet{
 	private List<Mover> movers;
+	private long startTick;
 	private int clientID;
 	
 	public BeginConnectionPacket(long timeReceived, ByteBuffer data) {
@@ -20,11 +21,13 @@ public class BeginConnectionPacket extends Packet{
 			Mover m = new Mover(data);
 			movers.add(m);
 		}
+		this.startTick = data.getLong();
 		this.clientID = data.getInt();
 	}
 	
-	BeginConnectionPacket(List<Mover> movers, long clientID, MoverServerPacketFactory factory){
+	BeginConnectionPacket(List<Mover> movers, long clientID, long startTick, MoverServerPacketFactory factory){
 		super(PacketType.ACCEPTCONNECT, factory);
+		this.startTick = startTick;
 		this.movers = movers;
 		this.clientID = (int)clientID;
 	}
@@ -37,12 +40,17 @@ public class BeginConnectionPacket extends Packet{
 		return clientID;
 	}
 	
+	public long getStartTick(){
+		return startTick;
+	}
+	
 	@Override
 	protected void encodeData(ByteBuffer buffer) {
 		buffer.putInt(movers.size());
 		for(int i = 0; i < movers.size(); i++){
 			movers.get(i).serializeWrite(buffer);
 		}
+		buffer.putLong(startTick);
 		buffer.putInt(clientID);
 	}
 	

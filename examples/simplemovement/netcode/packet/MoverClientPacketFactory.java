@@ -10,8 +10,8 @@ public class MoverClientPacketFactory extends ClientPacketFactory{
 		super(acker);
 	}
 
-	public MoverInputPacket createMoverInputPacket(MoverInput input, int id){
-		return new MoverInputPacket(input, id, this);
+	public MoverInputPacket createMoverInputPacket(long tick, MoverInput input, int id){
+		return new MoverInputPacket(tick, input, id, this);
 	}
 	
 }

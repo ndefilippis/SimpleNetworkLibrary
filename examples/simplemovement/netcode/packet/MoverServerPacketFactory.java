@@ -15,8 +15,8 @@ public class MoverServerPacketFactory extends ServerPacketFactory{
 		super(acker);
 	}
 	
-	public BeginConnectionPacket createBeginConnectionPacket(List<Mover> movers, int id){
-		return new BeginConnectionPacket(movers, id, this);
+	public BeginConnectionPacket createBeginConnectionPacket(List<Mover> movers, int id, long currentTick){
+		return new BeginConnectionPacket(movers, id, currentTick, this);
 	}
 
 	public NewMoverPacket createNewMoverPacket(Mover m){

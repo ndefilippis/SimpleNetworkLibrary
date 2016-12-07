@@ -3,14 +3,20 @@ package threading;
 public abstract class TimedRunnableLoop extends RunnableLoop{
 	private long milliDelay;
 	private int maxIterations;
+	private long currentTick;
 	
 	public TimedRunnableLoop(long milliDelay){
-		this(milliDelay, 0);
+		this(milliDelay, 0, 0);
 	}
 	
-	public TimedRunnableLoop(long milliDelay, int maxIterations){
+	public TimedRunnableLoop(long milliDelay, long startTick){
+		this(milliDelay, startTick, 0);
+	}
+	
+	public TimedRunnableLoop(long milliDelay, long startTick, int maxIterations){
 		super();
 		this.milliDelay = milliDelay;
+		this.currentTick = startTick;
 		this.maxIterations = maxIterations;
 	}
 	
@@ -36,6 +42,11 @@ public abstract class TimedRunnableLoop extends RunnableLoop{
 	@Override
 	public void update(){
 		update(milliDelay/1000D);
+		currentTick++;
+	}
+	
+	public long getCurrentTick(){
+		return currentTick;
 	}
 	
 	protected abstract void update(double dt);

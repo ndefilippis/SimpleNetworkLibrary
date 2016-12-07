@@ -11,13 +11,14 @@ import examples.simplemovement.netcode.packet.MoverInputPacket;
 import examples.simplemovement.netcode.packet.MoverServerPacketFactory;
 import examples.simplemovement.netcode.packet.NewMoverPacket;
 import examples.simplemovement.netcode.packet.NewStatePacket;
-import netcode.GameUpdateLoop;
 import netcode.Server;
 import netcode.packet.Packet;
 import threading.GameLoop;
+import threading.TimedRunnableLoop;
 
 public class MoverServer extends Server<MoverServerPacketFactory, MoverHandler>{
 	private MoverPlane model;
+	private GameLoop<MoverPlane> gameLoop;
 
 	private int nextID = 0;
 	
@@ -28,8 +29,9 @@ public class MoverServer extends Server<MoverServerPacketFactory, MoverHandler>{
 	
 	@Override
 	public void run(){
-		new Thread(new GameLoop<MoverPlane>(model, 16)).start();
-		new Thread(new MoverUpdateLoop(20L)).start();
+		this.gameLoop = new GameLoop<MoverPlane>(model, 16);
+		new Thread(gameLoop).start();
+		new Thread(new MoverUpdateLoop(100L)).start();
 		super.run();
 	}
 	
@@ -76,14 +78,14 @@ public class MoverServer extends Server<MoverServerPacketFactory, MoverHandler>{
 		mover.setSpeed(dx, dy);
 	}
 	
-	private class MoverUpdateLoop extends GameUpdateLoop{
+	private class MoverUpdateLoop extends TimedRunnableLoop{
 
 		public MoverUpdateLoop(long milliDelay) {
 			super(milliDelay);
 		}
 
 		@Override
-		protected void onUpdate() {
+		protected void update(double dt) {
 			addMessageToAll(NewStatePacket.createDefaultPacket(model.getState()));
 		}		
 	}
@@ -98,6 +100,6 @@ public class MoverServer extends Server<MoverServerPacketFactory, MoverHandler>{
 		Mover m = new Mover(nextID++, (int)(100 * Math.random()), (int)(-100 * Math.random()));
 		model.addMover(m);
 		addMessageToAll(NewMoverPacket.createDefaultPacket(m));
-		addMessage(factory.createBeginConnectionPacket(model.getMovers(), m.getID()), address);
+		addMessage(factory.createBeginConnectionPacket(model.getMovers(), m.getID(), gameLoop.getCurrentTick()), address);
 	}
 }

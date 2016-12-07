@@ -7,23 +7,27 @@ import netcode.packet.Packet;
 import netcode.packet.PacketType;
 
 public class MoverInputPacket extends Packet {
-
+	
+	private long tick;
 	private MoverInput input;
 	private int moverID;
 
 	public MoverInputPacket(long timeReceived, ByteBuffer data) {
 		super(timeReceived, data);
+		this.tick = data.getLong();
 		byte input = data.get();
+		int inputID = data.getInt();
 		boolean down = ((input >> 0) & 0x1) == 0;
 		boolean left = ((input >> 1) & 0x1) == 0; 
 		boolean right = ((input >> 2) & 0x1) == 0; 
 		boolean up = ((input >> 3) & 0x1) == 0;
-		this.input = new MoverInput(left, right, up, down, 0);
+		this.input = new MoverInput(left, right, up, down, inputID);
 		this.moverID = data.getInt();
 	}
 	
-	public MoverInputPacket(MoverInput input, int id, MoverClientPacketFactory factory){
+	public MoverInputPacket(long tick, MoverInput input, int id, MoverClientPacketFactory factory){
 		super(PacketType.NEWVALUE, factory);
+		this.tick = tick;
 		this.input = input;
 		this.moverID = id;
 	}
@@ -38,7 +42,10 @@ public class MoverInputPacket extends Packet {
 
 	@Override
 	protected void encodeData(ByteBuffer buffer) {
-		buffer.put((byte)( (input.down ? 1 : 0) | (input.left ?  2 : 0) | (input.right ?  4 : 0) | (input.up ?  8 : 0) ));
+		buffer.putLong(tick);
+		byte i = (byte)( (input.down ? 1 : 0) | (input.left ?  2 : 0) | (input.right ?  4 : 0) | (input.up ?  8 : 0) );
+		buffer.putInt(input.getID());
+		buffer.put(i);
 		buffer.putInt(moverID);
 	}
 

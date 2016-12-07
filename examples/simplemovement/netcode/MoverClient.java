@@ -14,6 +14,7 @@ import examples.simplemovement.mvc.Mover;
 import examples.simplemovement.mvc.MoverController;
 import examples.simplemovement.mvc.MoverInput;
 import examples.simplemovement.mvc.MoverPlane;
+import examples.simplemovement.mvc.MoverState;
 import examples.simplemovement.mvc.MoverViewer;
 import examples.simplemovement.netcode.packet.BeginConnectionPacket;
 import examples.simplemovement.netcode.packet.MoverClientPacketFactory;
@@ -31,6 +32,8 @@ public class MoverClient extends Client{
 	private MoverController controller;
 	private InputListener listener;
 	private MoverClientPacketFactory factory;
+	
+	private GameLoop<MoverPlane> gameLoop;
 	
 	private volatile Queue<MoverInput> knownInputs = new LinkedList<MoverInput>();
 	
@@ -92,15 +95,18 @@ public class MoverClient extends Client{
 		viewer.addWindowListener(new DisconnectListener(this));
 		listener = new LagCompensatedInputListener();
 		viewer.addInputListener(listener);
-		new Thread(new GameLoop<MoverPlane>(model, 16)).start();
-		new Thread(new MoverInputUpdate(16, this)).start();
+		gameLoop = new GameLoop<MoverPlane>(model, 16);
+		new Thread(gameLoop).start();
+		new Thread(new MoverInputUpdate(20, this)).start();
 		controller = new MoverController(model, viewer, myMover, listener);
 		
 		viewer.setVisible(true);
 	}
 	
+	private MoverState latestState = new MoverState();
 	private void handleChangeValue(NewStatePacket packet){
-		model.setState(packet.getState());
+		model.setState(latestState);
+		latestState = packet.getState();
 		while(knownInputs.size() > 0 && knownInputs.peek().getID() < packet.getID()){
 			knownInputs.poll();
 		}
@@ -151,7 +157,7 @@ public class MoverClient extends Client{
 
 		@Override
 		protected Packet serializeInput() {
-			return factory.createMoverInputPacket(listener.getState(), (int)id);
+			return factory.createMoverInputPacket(gameLoop.getCurrentTick(), listener.getState(), (int)id);
 		}
 
 		

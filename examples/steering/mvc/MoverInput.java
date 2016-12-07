@@ -1,4 +1,4 @@
-package examples.simplemovement.mvc;
+package examples.steering.mvc;
 
 import mvc.Input;
 
@@ -7,15 +7,16 @@ public class MoverInput extends Input{
 	public boolean right;
 	public boolean up;
 	public boolean down;
+	private double dt;
 	private int id;
 	
-	public MoverInput(boolean left, boolean right, boolean up, boolean down, int id){
+	public MoverInput(boolean left, boolean right, boolean up, boolean down, double dt){
 		super();
 		this.left = left;
 		this.right = right;
 		this.down = down;
 		this.up = up;
-		this.id = id;
+		this.dt = dt;
 	}
 	
 	public MoverInput(MoverInput other, int id){
@@ -25,6 +26,10 @@ public class MoverInput extends Input{
 		this.down = other.down;
 		this.up = other.up;
 		this.id = id;
+	}
+	
+	public double getDt(){
+		return dt;
 	}
 	
 	public int getID(){
