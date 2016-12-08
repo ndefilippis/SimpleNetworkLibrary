@@ -35,7 +35,7 @@ public class MoverClient extends Client{
 	
 	private GameLoop<MoverPlane> gameLoop;
 	
-	private volatile Queue<MoverInput> knownInputs = new LinkedList<MoverInput>();
+	private volatile LinkedList<MoverInput> knownInputs = new LinkedList<MoverInput>();
 	
 	private long id;
 	
@@ -105,7 +105,7 @@ public class MoverClient extends Client{
 	
 	private MoverState latestState = new MoverState();
 	private void handleChangeValue(NewStatePacket packet){
-		model.setState(latestState);
+		//model.setState(latestState);
 		latestState = packet.getState();
 		while(knownInputs.size() > 0 && knownInputs.peek().getID() < packet.getID()){
 			knownInputs.poll();
