@@ -22,6 +22,49 @@ public class MoverState implements State, Serializable {
 			movers.add(new Mover(buffer));
 		}
 	}
+	
+	public static MoverState interpolate(MoverState state1, MoverState state2, double delta){
+		MoverState result = new MoverState();
+		for(int a=0, b=0; a<state1.movers.size() && b < state2.movers.size(); a++, b++){
+			if(a < state1.movers.size() && b < state2.movers.size()){
+				Mover moverA = state1.movers.get(a);
+				Mover moverB = state2.movers.get(b);
+				if(moverA.getID() != moverB.getID()){
+					if(moverA.getID() < moverB.getID()){
+						while(a < state1.movers.size() && moverA.getID() < moverB.getID()){
+							result.movers.add(moverA);
+							a++;
+							if(a < state1.movers.size()){
+								moverA = state1.movers.get(a);
+							}
+						}
+					}
+					else{
+						while(b < state2.movers.size() && moverB.getID() < moverA.getID()){
+							result.movers.add(moverB);
+							b++;
+							if(b < state2.movers.size()){
+								moverB = state2.movers.get(b);
+							}
+						}
+					}
+				}
+				if(moverA.getID() == moverB.getID()){
+					result.movers.add(Mover.interpolate(moverA, moverB, delta));
+				}
+			}
+			else{
+				while(a < state1.movers.size()){
+					result.movers.add(state1.movers.get(a));
+				}
+				while(b < state2.movers.size()){
+					result.movers.add(state2.movers.get(b));
+				}
+				break;
+			}
+		}
+		return result;
+	}
 
 	@Override
 	public void serializeWrite(ByteBuffer buffer) {

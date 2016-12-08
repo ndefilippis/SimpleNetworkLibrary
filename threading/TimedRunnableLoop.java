@@ -4,6 +4,7 @@ public abstract class TimedRunnableLoop extends RunnableLoop{
 	private long milliDelay;
 	private int maxIterations;
 	private long currentTick;
+	private long delta;
 	
 	public TimedRunnableLoop(long milliDelay){
 		this(milliDelay, 0, 0);
@@ -24,7 +25,7 @@ public abstract class TimedRunnableLoop extends RunnableLoop{
 	public void run(){
 		long currentTime;
 		long previousTime = System.nanoTime();
-		long delta = 0;
+		delta = 0;
 		while(shouldRun()){
 			currentTime = System.nanoTime();
 			long elapsed = currentTime - previousTime;
@@ -47,6 +48,10 @@ public abstract class TimedRunnableLoop extends RunnableLoop{
 	
 	public long getCurrentTick(){
 		return currentTick;
+	}
+	
+	public double getFractionBetweenTicks(int startTick, int endTick){
+		return (endTick - startTick)*((double)delta)/milliDelay;
 	}
 	
 	protected abstract void update(double dt);

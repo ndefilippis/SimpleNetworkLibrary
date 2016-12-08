@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.Queue;
+import java.util.List;
 
 import examples.simplemovement.mvc.InputListener;
 import examples.simplemovement.mvc.Mover;
@@ -32,7 +32,6 @@ public class MoverClient extends Client{
 	private MoverController controller;
 	private InputListener listener;
 	private MoverClientPacketFactory factory;
-	
 	private GameLoop<MoverPlane> gameLoop;
 	
 	private volatile LinkedList<MoverInput> knownInputs = new LinkedList<MoverInput>();
@@ -97,16 +96,16 @@ public class MoverClient extends Client{
 		viewer.addInputListener(listener);
 		gameLoop = new GameLoop<MoverPlane>(model, 16);
 		new Thread(gameLoop).start();
-		new Thread(new MoverInputUpdate(20, this)).start();
+		new Thread(new MoverInputUpdate(30, this)).start();
 		controller = new MoverController(model, viewer, myMover, listener);
 		
 		viewer.setVisible(true);
 	}
 	
-	private MoverState latestState = new MoverState();
+	private long interpolationDelay = 100;
+	private MoverState lastState = new MoverState();
 	private void handleChangeValue(NewStatePacket packet){
-		//model.setState(latestState);
-		latestState = packet.getState();
+		model.setState(MoverState.interpolate(lastState, packet.getState(), gameLoop.getFractionBetweenTicks(0, 1))); //fix
 		while(knownInputs.size() > 0 && knownInputs.peek().getID() < packet.getID()){
 			knownInputs.poll();
 		}

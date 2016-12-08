@@ -24,13 +24,15 @@ public class Mover extends Observable implements State, Serializable{
 	}
 	
 	public void update(double dt){
+		double dxdt = 0;
+		double dydt = 0;
 		if(dx != 0 || dy != 0){
 			double length = Math.sqrt(dx * dx + dy * dy);
-			dx *= dt * speed/length;
-			dy *= dt * speed/length;
+			dxdt =  dx * dt * speed/length;
+			dydt =  dy * dt * speed/length;
 		}
-		x += dx;
-		y += dy;
+		x += dxdt;
+		y += dydt;
 		this.setChanged();
 		this.notifyObservers();
 	}
@@ -90,4 +92,18 @@ public class Mover extends Observable implements State, Serializable{
 		buffer.putDouble(dx);
 		buffer.putDouble(dy);
 	}
+
+	public static Mover interpolate(Mover moverA, Mover moverB, double delta) {
+		Mover m = new Mover(
+			moverA.id,
+			(int)lerp(moverA.x, moverB.x, delta),
+			(int)lerp(moverA.y, moverB.y, delta)
+		);
+		m.setSpeed(lerp(moverA.dx, moverB.dx, delta), lerp(moverA.dy, moverB.dy, delta));
+		return m;
+	}
+	
+	private static double lerp(double v1, double v2, double alpha){
+		return v2 * alpha  + v1 * ( 1 - alpha);
+	} 
 }

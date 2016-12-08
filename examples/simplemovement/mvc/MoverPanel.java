@@ -1,5 +1,6 @@
 package examples.simplemovement.mvc;
 
+import java.awt.Color;
 import java.awt.Graphics;
 import java.util.List;
 
@@ -16,6 +17,12 @@ public class MoverPanel extends JPanel{
 	public void paintComponent(Graphics g){
 		super.paintComponent(g);
 		for(Mover mover : moversToDraw){
+			if(mover.getDx() != 0 || mover.getDy() != 0){
+				g.setColor(Color.GREEN);
+			}
+			else{
+				g.setColor(Color.BLACK);
+			}
 			g.fillRect(mover.getX(), -mover.getY(), WIDTH, HEIGHT);
 		}
 	}

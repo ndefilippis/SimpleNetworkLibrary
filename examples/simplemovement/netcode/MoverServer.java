@@ -64,16 +64,16 @@ public class MoverServer extends Server<MoverServerPacketFactory, MoverHandler>{
 		int dx = 0;
 		int dy = 0;
 		if(input.left){
-			dx += 1;
-		}
-		if(input.right){
 			dx -= 1;
 		}
+		if(input.right){
+			dx += 1;
+		}
 		if(input.down){
-			dy += 1;
+			dy -= 1;
 		}
 		if(input.up){
-			dy -= 1;
+			dy += 1;
 		}
 		mover.setSpeed(dx, dy);
 	}

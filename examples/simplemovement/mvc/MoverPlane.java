@@ -39,5 +39,7 @@ public class MoverPlane extends TimedModel<MoverState> implements Observer{
 				mover.update(dt);
 			}
 		}
+		this.setChanged();
+		this.notifyObservers();
 	}
 }

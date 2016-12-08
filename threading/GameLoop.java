@@ -17,6 +17,6 @@ public class GameLoop<M extends TimedModel<?>> extends TimedRunnableLoop{
 	
 	@Override
 	protected void update(double dt) {
-		model.update(dt);		
+		model.update(dt);
 	}
 }
